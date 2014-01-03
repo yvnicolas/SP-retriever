@@ -83,7 +83,7 @@ public class SocialConfig {
      * Request-scoped Service Provider connection resolver information
      */
     @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
+//    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
     public SPResolver spResolver() {
        return new SPResolver();
     }

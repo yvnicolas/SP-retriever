@@ -36,8 +36,8 @@ import com.dynamease.serviceproviders.user.UserCookieGenerator;
  * @author Yves Nicolas
  */
 @Configuration
-@ComponentScan(basePackages = "org.springframework.social.quickstart", excludeFilters = { @Filter(Configuration.class) })
-@PropertySource("classpath:org/springframework/social/quickstart/config/application.properties")
+@ComponentScan(basePackages = "com.dynamease.serviceproviders")
+@PropertySource("classpath:com/dynamease/serviceproviders/config/application.properties")
 public class MainConfig {
 
     @Inject
@@ -58,4 +58,6 @@ public class MainConfig {
     public UserCookieGenerator userCookieGenerator() {
         return new UserCookieGenerator(environment.getProperty("cookie.name"));
     }
+    
+    
 }
