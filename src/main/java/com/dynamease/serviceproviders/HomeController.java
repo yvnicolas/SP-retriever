@@ -17,6 +17,9 @@ package com.dynamease.serviceproviders;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.stereotype.Controller;
@@ -57,9 +60,11 @@ public class HomeController {
     }
 
     @RequestMapping(value = Uris.IDPROCESS, method = RequestMethod.POST)
-    public ModelAndView login(@RequestParam("id") String id) {
+    public ModelAndView login(HttpServletRequest request, @RequestParam("id") String id) {
 
+        HttpSession session = request.getSession();
         spResolver.connectUser(new User(id));
+        session.setAttribute("userId", id);
         ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
         mav.addObject("nom", id);
         return mav;
