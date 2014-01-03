@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface SPConnectionRetriever {
 
-    public List<Person> getConnections();
+    public List<Person> getConnections() throws SpInfoRetrievingException;
     
     public ServiceProviders getActiveSP();
     
@@ -22,6 +22,7 @@ public interface SPConnectionRetriever {
      * Returns info as a list if several matches are found
      * @param person
      * @return
+     * @throws SpInfoRetrievingException 
      */
-    public List<SpInfoPerson> getPersonInfo(Person person);
+    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException;
 }

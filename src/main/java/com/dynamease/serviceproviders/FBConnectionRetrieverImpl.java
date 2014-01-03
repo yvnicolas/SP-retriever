@@ -6,31 +6,40 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.facebook.api.Reference;
-import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
 
-@Component("FBConnectionRetriever")
+
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
 
     private Facebook facebook;
 
-    @Inject
+
     public FBConnectionRetrieverImpl(Facebook facebook) {
         this.facebook = facebook;
     }
 
+    public FBConnectionRetrieverImpl() {
+        this.facebook = null;
+    }
+
+    public void setFacebook(Facebook facebook) {
+        this.facebook = facebook;
+    }
+
     @Override
-    public List<Person> getConnections() {
+    public List<Person> getConnections() throws SpInfoRetrievingException {
+        
+        if (facebook==null) {
+            throw new SpInfoRetrievingException("Retrieving information from a null facebook");
+        }
         List<Reference> friends = facebook.friendOperations().getFriends();
         List<Person> toReturn = new ArrayList<Person>();
         for (Reference ref : friends) {
@@ -61,7 +70,12 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) {
+    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
+        
+        
+        if (facebook==null) {
+            throw new SpInfoRetrievingException("Retrieving information from a null facebook");
+        }
         List<Reference> queryResponse = facebook.userOperations().search(person.fullName());
         List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
         for (Reference ref : queryResponse) {

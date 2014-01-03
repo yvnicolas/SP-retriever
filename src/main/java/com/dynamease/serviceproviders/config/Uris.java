@@ -13,7 +13,7 @@ public final class Uris {
 	
 	
 	// Main Application Uri Prefix
-	public static final String URISPREFIX = "/persistent-spring-social";
+	public static final String URISPREFIX = "";
 	// Main Starting page
 	public static final String MAIN = "/";
 	
@@ -55,7 +55,10 @@ public final class Uris {
 	public static final String SIGNOUT = "/signout";
 
 	// Complete Signout page : also disconnects from Facebook
-	public static final String PARTIALSIGNOUT = SIGNOUT + "/app";
+//	public static final String PARTIALSIGNOUT = SIGNOUT + "/app";
+	
+	// To Disconnect from a Service Provider
+	public static final String DISCONNECT = "/disconnect";
 
 
 	//Application Connection Dance Prefix
