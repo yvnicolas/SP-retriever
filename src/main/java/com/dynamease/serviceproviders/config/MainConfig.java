@@ -37,7 +37,7 @@ import com.dynamease.serviceproviders.user.UserCookieGenerator;
  */
 @Configuration
 @ComponentScan(basePackages = "com.dynamease.serviceproviders")
-@PropertySource("classpath:com/dynamease/serviceproviders/config/application.properties")
+@PropertySource("classpath:application.properties")
 public class MainConfig {
 
     @Inject

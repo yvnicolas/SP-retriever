@@ -83,6 +83,7 @@ public class SocialConfig {
      * Request-scoped Service Provider connection resolver information
      */
     @Bean
+    //TODO  : fix why this does not work (proxy should be injected correctly in home controller
 //    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
     public SPResolver spResolver() {
        return new SPResolver();

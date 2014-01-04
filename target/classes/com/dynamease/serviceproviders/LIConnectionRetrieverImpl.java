@@ -6,30 +6,42 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.linkedin.api.SearchParameters;
-import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
 
-@Component("LIConnectionRetriever")
+
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(LIConnectionRetrieverImpl.class);
-    private LinkedIn linkedIn;
+    
+    static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
+    
+    private LinkedIn linkedIn = null;
 
-    @Inject
+
+    public void setLinkedIn(LinkedIn linkedIn) {
+        this.linkedIn = linkedIn;
+    }
+
+    public LIConnectionRetrieverImpl() {
+       
+    }
+
     public LIConnectionRetrieverImpl(LinkedIn linkedIn) {
         this.linkedIn = linkedIn;
     }
 
     @Override
-    public List<Person> getConnections() {
+    public List<Person> getConnections() throws SpInfoRetrievingException {
+        
+        if (linkedIn==null) {
+            throw new SpInfoRetrievingException("Retrieving information from a null linkedIn");
+        }
         List<LinkedInProfile> connections = linkedIn.connectionOperations().getConnections();
         List<Person> toReturn = new ArrayList<Person>();
         for (LinkedInProfile connection : connections) {
@@ -57,8 +69,12 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) {
+    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
 
+        
+        if (linkedIn==null) {
+            throw new SpInfoRetrievingException("Retrieving information from a null linkedIn");
+        }
         List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
 
         SearchParameters searchQuery = new SearchParameters();
@@ -88,6 +104,24 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
         }
 
         return null;
+    }
+    
+
+    @Override
+    public boolean isconnected() {
+        boolean toReturn = false;
+        try {
+            toReturn = linkedIn.isAuthorized();
+        } catch (Exception e) {
+        }
+        return toReturn;
+    }
+
+    @Override
+    public String getPermissions() {
+        // TODO : ameliorer en retournant les permissions autorisees si connectees
+        return DEFAULTPERMISSIONS;
+
     }
 
 }

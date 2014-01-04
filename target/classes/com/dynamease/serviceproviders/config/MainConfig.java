@@ -15,6 +15,7 @@
  */
 package com.dynamease.serviceproviders.config;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -22,25 +23,41 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.dynamease.serviceproviders.user.UserCookieGenerator;
+
+
 /**
- * Main configuration class for the application.
- * Turns on @Component scanning, loads externalized application.properties, and sets up the database.
- * @author Keith Donald
+ * Main configuration class for the application. Turns on @Component scanning, loads externalized
+ * application.properties, and sets up the database.
+ * 
+ * @author Yves Nicolas
  */
 @Configuration
-@ComponentScan(basePackages = "org.springframework.social.quickstart", excludeFilters = { @Filter(Configuration.class) })
-@PropertySource("classpath:org/springframework/social/quickstart/config/application.properties")
+@ComponentScan(basePackages = "com.dynamease.serviceproviders")
+@PropertySource("classpath:application.properties")
 public class MainConfig {
 
-	@Bean
-	public DataSource datasource() {
-		DriverManagerDataSource toReturn = new DriverManagerDataSource("jdbc:mysql://localhost:3306/spring_social");
-		toReturn.setDriverClassName("com.mysql.jdbc.Driver");
-		toReturn.setUsername("spring");
-		toReturn.setPassword("spring");
-		return toReturn;
-			
-	}
+    @Inject
+    private Environment environment;
+
+    @Bean
+    public DataSource datasource() {
+        DriverManagerDataSource toReturn = new DriverManagerDataSource("jdbc:mysql://localhost:3306/"
+                + environment.getProperty("database.name"));
+        toReturn.setDriverClassName("com.mysql.jdbc.Driver");
+        toReturn.setUsername(environment.getProperty("database.user"));
+        toReturn.setPassword(environment.getProperty("database.pwd"));
+        return toReturn;
+
+    }
+    
+    @Bean
+    public UserCookieGenerator userCookieGenerator() {
+        return new UserCookieGenerator(environment.getProperty("cookie.name"));
+    }
+    
+    
 }

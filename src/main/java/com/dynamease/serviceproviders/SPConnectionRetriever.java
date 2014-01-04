@@ -17,6 +17,10 @@ public interface SPConnectionRetriever {
     
     public String getConnectUrl();
     
+    
+   public boolean isconnected();
+    
+    public String getPermissions();
     /**
      * Meant to retrieve information on a person from a service provider connection
      * Returns info as a list if several matches are found

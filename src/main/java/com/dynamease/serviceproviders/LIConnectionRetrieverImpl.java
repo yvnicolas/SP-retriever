@@ -18,6 +18,9 @@ import com.dynamease.serviceproviders.config.Uris;
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(LIConnectionRetrieverImpl.class);
+    
+    static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
+    
     private LinkedIn linkedIn = null;
 
 
@@ -101,6 +104,24 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
         }
 
         return null;
+    }
+    
+
+    @Override
+    public boolean isconnected() {
+        boolean toReturn = false;
+        try {
+            toReturn = linkedIn.isAuthorized();
+        } catch (Exception e) {
+        }
+        return toReturn;
+    }
+
+    @Override
+    public String getPermissions() {
+        // TODO : ameliorer en retournant les permissions autorisees si connectees
+        return DEFAULTPERMISSIONS;
+
     }
 
 }

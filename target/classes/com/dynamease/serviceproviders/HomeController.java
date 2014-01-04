@@ -1,35 +1,14 @@
-/*
- * Copyright 2013 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package com.dynamease.serviceproviders;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.facebook.api.Facebook;
-import org.springframework.social.facebook.api.Reference;
-import org.springframework.social.facebook.connect.FacebookConnectionFactory;
-import org.springframework.social.linkedin.api.LinkedIn;
-import org.springframework.social.linkedin.api.LinkedInProfile;
-import org.springframework.social.oauth2.OAuth2Operations;
-import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,34 +17,40 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.dynamease.serviceproviders.config.Uris;
-import com.dynamease.serviceproviders.user.SecurityContext;
 import com.dynamease.serviceproviders.user.User;
 
 /**
- * Simple little @Controller that invokes Facebook and renders the result. The
- * injected {@link Facebook} reference is configured with the required
- * authorization credentials for the current user behind the scenes.
+ * Simple little @Controller that invokes Facebook and renders the result. The injected
+ * {@link Facebook} reference is configured with the required authorization credentials for the
+ * current user behind the scenes.
  * 
  * @author Keith Donald
  */
 @Controller
 public class HomeController {
-  
-   @Autowired
-   SPConnectionRetriever FBConnectionRetriever;
-   
-   @Autowired
-   SPConnectionRetriever LIConnectionRetriever;
-   
+
+    @Autowired
+    private SPResolver spResolver;
+
     @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
-    public String home(Model model) {
+    public String home(HttpServletRequest request, Model model) {
         List<Person> connections;
-        try {
-         connections = SecurityContext.getCurrentSpResolver().getConnections();
-        model.addAttribute("connections", connections);
-        model.addAttribute("serviceProvider", SecurityContext.getCurrentSpResolver().getActiveSP().toString());
+
+        List<SPInfo> SPStatusList = new ArrayList<SPInfo>();
+        for (ServiceProviders sp : ServiceProviders.values()) {
+            SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+            SPStatusList.add(new SPInfo(sp.toString(), spAccess.isconnected(), spAccess.getPermissions(), spAccess
+                    .getConnectUrl()));
         }
-        catch (IllegalStateException e) {
+
+        model.addAttribute("nom", request.getSession().getAttribute("userId"));
+        model.addAttribute("serviceProviders", SPStatusList);
+
+        try {
+            connections = spResolver.getSPConnectionRetriever().getConnections();
+            model.addAttribute("connections", connections);
+            model.addAttribute("serviceProvider", spResolver.getSPConnectionRetriever().getActiveSP().toString());
+        } catch (IllegalStateException | SpInfoRetrievingException e) {
             // SP not defined, no contacts to show"
             model.addAttribute("serviceProvider", "No Service Provider selected : no contact to show");
         }
@@ -73,31 +58,69 @@ public class HomeController {
     }
 
     @RequestMapping(value = Uris.IDPROCESS, method = RequestMethod.POST)
-    public ModelAndView login(@RequestParam("id") String id) {
+    public ModelAndView login(HttpServletRequest request, @RequestParam("id") String id) {
 
-        SecurityContext.setCurrentUser(new User(id));
+        HttpSession session = request.getSession();
+        spResolver.connectUser(new User(id));
+        session.setAttribute("userId", id);
         ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
         mav.addObject("nom", id);
         return mav;
     }
-    
+
     @RequestMapping(value = Uris.SPCHOICE, method = RequestMethod.POST)
-    public ModelAndView Spchoice (@RequestParam("sp") String sp) {
+    public ModelAndView Spchoice(@RequestParam("sp") String sp) {
 
         ServiceProviders spasenum = ServiceProviders.valueOf(sp);
         ModelAndView mav = new ModelAndView(Uris.SPCONFIRM);
-        switch (spasenum) {
-        case FACEBOOK :
-            SecurityContext.setCurrentSpResolver(FBConnectionRetriever);
-           
-            break;
-        case LINKEDIN :
-            SecurityContext.setCurrentSpResolver(LIConnectionRetriever);     
-            break;
-        }
+        spResolver.setCurrentSP(spasenum);
         mav.addObject("sp", sp);
         return mav;
     }
 
+    /**
+     * Rendering bean class used to exchange info with the JSP
+     * 
+     * @author Yves Nicolas
+     * 
+     */
+    public class SPInfo {
+        private String name;
+        private boolean connected;
+        private String permissions;
+        private String URL;
 
+        public SPInfo(String name, boolean isConnected, String permissions, String URL) {
+            super();
+            this.name = name;
+            this.connected = isConnected;
+            this.permissions = permissions;
+            this.URL = URL;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public boolean isConnected() {
+            return connected;
+        }
+
+        public void setConnected(boolean isConnected) {
+            this.connected = isConnected;
+        }
+
+        public String getPermissions() {
+            return permissions;
+        }
+
+        public void setPermissions(String permissions) {
+            this.permissions = permissions;
+        }
+
+    }
 }

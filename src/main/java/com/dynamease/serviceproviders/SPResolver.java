@@ -67,25 +67,30 @@ public class SPResolver {
         if (currentSP==null) {
             throw new SpInfoRetrievingException("Service provider unset, can not get connections");
         }
+        return getSPConnection(currentSP);
+    }
+    
+    public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
         if (currentUser != null)  {
-            switch (currentSP) {
+            switch (sp) {
             case FACEBOOK:
                 try {
                     FBConnectionRetriever.setFacebook(connectionRepository.getPrimaryConnection(Facebook.class).getApi());
-                    return FBConnectionRetriever;
                 }
                 catch (NotConnectedException e) {
-                    throw new SpInfoRetrievingException("Can not get Facebook Connection Retriever", e);
+                    FBConnectionRetriever.setFacebook(null);
                 }
+                return FBConnectionRetriever;
                 
             case LINKEDIN:
                 try {
                     LIConnectionRetriever.setLinkedIn(connectionRepository.getPrimaryConnection(LinkedIn.class).getApi());
-                return LIConnectionRetriever;
+               
                 }
                 catch (NotConnectedException e) {
-                    throw new SpInfoRetrievingException("Can not get Linked In Connection Retriever", e);
+                    LIConnectionRetriever.setLinkedIn(null);
                 }
+                return LIConnectionRetriever;
  
             }
         }
