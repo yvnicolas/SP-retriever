@@ -39,8 +39,9 @@ public class HomeController {
         List<SPInfo> SPStatusList = new ArrayList<SPInfo>();
         for (ServiceProviders sp : ServiceProviders.values()) {
             SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-            SPStatusList.add(new SPInfo(sp.toString(), spAccess.isconnected(), spAccess.getPermissions(), spAccess
-                    .getConnectUrl()));
+            SPInfo thisSp = new SPInfo(sp.toString(), spAccess.isconnected(), spAccess.getPermissions(), spAccess
+                    .getConnectUrl());
+            SPStatusList.add(thisSp);
         }
 
         model.addAttribute("nom", request.getSession().getAttribute("userId"));
@@ -121,6 +122,11 @@ public class HomeController {
         public void setPermissions(String permissions) {
             this.permissions = permissions;
         }
+
+        public String getURL() {
+            return URL;
+        }
+        
 
     }
 }
