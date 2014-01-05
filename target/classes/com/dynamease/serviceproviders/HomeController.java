@@ -29,7 +29,7 @@ import com.dynamease.serviceproviders.user.User;
  */
 @Controller
 public class HomeController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     @Autowired
@@ -44,8 +44,8 @@ public class HomeController {
         List<SPInfo> SPStatusList = new ArrayList<SPInfo>();
         for (ServiceProviders sp : ServiceProviders.values()) {
             SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-            SPInfo thisSp = new SPInfo(sp.toString(), spAccess.isconnected(), spAccess.getPermissions(),
-                    spAccess.getConnectUrl());
+            SPInfo thisSp = new SPInfo(sp.toString());
+            thisSp.update(spAccess);
             SPStatusList.add(thisSp);
         }
 
@@ -65,8 +65,9 @@ public class HomeController {
                         "serviceProvider",
                         String.format("Unable to retrieve connections for %s : %s", spr.getActiveSP().toString(),
                                 e.getMessage()));
-                logger.error(String.format("Unable to retrieve connections for %s : %s", spr.getActiveSP().toString(),
-                                e.getMessage()),e);
+                logger.error(
+                        String.format("Unable to retrieve connections for %s : %s", spr.getActiveSP().toString(),
+                                e.getMessage()), e);
             }
 
         } else {
@@ -118,6 +119,13 @@ public class HomeController {
             this.URL = URL;
         }
 
+        public SPInfo(String name) {
+            this.name = name;
+            this.connected = false;
+            this.permissions = null;
+            this.URL = null;
+        }
+
         public String getName() {
             return name;
         }
@@ -144,6 +152,15 @@ public class HomeController {
 
         public String getURL() {
             return URL;
+        }
+
+        public SPInfo update(SPConnectionRetriever spr) {
+            if (spr != null) {
+                connected = spr.isconnected();
+                permissions = spr.getPermissions();
+                URL = spr.getConnectUrl();
+            }
+            return this;
         }
 
     }

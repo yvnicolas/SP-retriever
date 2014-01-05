@@ -8,13 +8,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.facebook.api.Reference;
+import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
 
-
+@Component("FBConnectionRetriever")
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
@@ -22,15 +24,11 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
 
 
+    @Autowired
     private Facebook facebook;
 
-
-    public FBConnectionRetrieverImpl(Facebook facebook) {
-        this.facebook = facebook;
-    }
-
+ 
     public FBConnectionRetrieverImpl() {
-        this.facebook = null;
     }
 
     public void setFacebook(Facebook facebook) {

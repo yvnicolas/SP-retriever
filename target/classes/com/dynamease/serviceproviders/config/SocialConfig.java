@@ -28,11 +28,14 @@ import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.NotConnectedException;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.connect.web.ConnectController;
+import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
 
 import com.dynamease.serviceproviders.SPResolver;
@@ -84,13 +87,13 @@ public class SocialConfig {
     }
 
     @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
     public CurrentUserContext currentUser() {
         return new CurrentUserContextImpl();
     }
 
     @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
     public ConnectionRepository connectionRepository() {
         String id = currentUser().getId();
         if (id == null) {
@@ -99,6 +102,29 @@ public class SocialConfig {
         return usersConnectionRepository().createConnectionRepository(id);
     }
 
+    /**
+     * A proxy to a request-scoped object representing the current user's primary Facebook account.
+     * 
+     * @throws NotConnectedException
+     *             if the user is not connected to facebook.
+     */
+    @Bean
+    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
+    public Facebook facebook() {
+        return connectionRepository().getPrimaryConnection(Facebook.class).getApi();
+    }
+
+    /**
+     * A proxy to a request-scoped object representing the current user's primary LinkedIn account.
+     * 
+     * @throws NotConnectedException
+     *             if the user is not connected to Linkedin.
+     */
+    @Bean
+    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
+    public LinkedIn linkedIn() {
+        return connectionRepository().getPrimaryConnection(LinkedIn.class).getApi();
+    }
 
     /**
      * The standard spring MVC connection Controller, see chapter 4 of reference manual. Once the

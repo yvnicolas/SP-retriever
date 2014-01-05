@@ -34,7 +34,9 @@ public class SPResolver {
     private CurrentUserContext currentUser;
 
     @Autowired
-    private ConnectionRepository connectionRepository;
+    private SPConnectionRetriever FBConnectionRetriever;
+    
+    @Autowired SPConnectionRetriever LIConnectionRetriever;
 
     // private LIConnectionRetrieverImpl LIConnectionRetriever = new LIConnectionRetrieverImpl();
 
@@ -61,30 +63,16 @@ public class SPResolver {
     //
     public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
         SPConnectionRetriever toReturn = null;
-        if (currentUser.isConnected()) {
-
+      
             switch (sp) {
             case FACEBOOK:
-                try {
-                    toReturn = new FBConnectionRetrieverImpl(connectionRepository.getPrimaryConnection(Facebook.class)
-                            .getApi());
-                } catch (NotConnectedException e) {
-
-                }
-                break;
+              return FBConnectionRetriever;
 
             case LINKEDIN:
-                try {
-                    toReturn = new LIConnectionRetrieverImpl(connectionRepository.getPrimaryConnection(LinkedIn.class)
-                            .getApi());
-
-                } catch (NotConnectedException e) {
-
-                }
-                break;
+                return LIConnectionRetriever;
 
             }
-        }
+        
         return toReturn;
     }
 }

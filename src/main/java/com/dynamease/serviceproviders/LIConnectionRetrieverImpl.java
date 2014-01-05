@@ -8,20 +8,23 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.linkedin.api.SearchParameters;
+import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
 
-
+@Component("LIConnectionRetriever")
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(LIConnectionRetrieverImpl.class);
     
     static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
     
-    private LinkedIn linkedIn = null;
+    @Autowired
+    private LinkedIn linkedIn;
 
 
     public void setLinkedIn(LinkedIn linkedIn) {
