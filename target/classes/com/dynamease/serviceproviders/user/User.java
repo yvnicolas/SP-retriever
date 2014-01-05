@@ -15,14 +15,16 @@
  */
 package com.dynamease.serviceproviders.user;
 
+
 /**
  * Simple little User model. 
  * Just stores the user's id for simplicity.
  * @author Keith Donald
  */
-public final class User {
+
+public class User {
 	
-	private final String id;
+	private String id;
 	
 	public User(String id) {
 		this.id = id;
@@ -31,5 +33,9 @@ public final class User {
 	public String getId() {
 		return id;
 	}
+
+    public void setId(String id) {
+        this.id = id;
+    }
 	
 }

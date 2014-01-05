@@ -7,6 +7,7 @@ import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.dynamease.serviceproviders.user.User;
 
@@ -17,83 +18,72 @@ import com.dynamease.serviceproviders.user.User;
  * @author Yves Nicolas
  * 
  */
-
+@Service
 public class SPResolver {
 
     public SPResolver() {
     }
 
+    // @Autowired
+    // private UsersConnectionRepository usersConnectionRepository;
+
+    // private FBConnectionRetrieverImpl FBConnectionRetriever = new FBConnectionRetrieverImpl();
+
     @Autowired
-    private UsersConnectionRepository usersConnectionRepository;
+    private User currentUser;
 
-    private FBConnectionRetrieverImpl FBConnectionRetriever = new FBConnectionRetrieverImpl();
+    @Autowired
+    private ConnectionRepository connectionRepository;
 
-    private User currentUser = null;
-    
-    private ServiceProviders currentSP=null;
+    // private LIConnectionRetrieverImpl LIConnectionRetriever = new LIConnectionRetrieverImpl();
 
-    private ConnectionRepository connectionRepository = null;
-
-    private LIConnectionRetrieverImpl LIConnectionRetriever = new LIConnectionRetrieverImpl();
-    
-    
-
-    public ServiceProviders getCurrentSP() {
-        return currentSP;
-    }
-
-    public void setCurrentSP(ServiceProviders currentSP) {
-        this.currentSP = currentSP;
-    }
-
-    public void connectUser(User user) {
-        this.currentUser = user;
-        connectionRepository = usersConnectionRepository.createConnectionRepository(user.getId());
-       
-      
-    }
+     public void connectUser(String id) {
+     currentUser.setId(id);
+         }
 
     public void disconnectUser() {
         this.currentUser = null;
     }
-    
 
-    public ConnectionRepository getConnectionRepository() {
-        return connectionRepository;
-    }
-
-    public SPConnectionRetriever getSPConnectionRetriever() throws SpInfoRetrievingException {
-
-        if (currentSP==null) {
-            throw new SpInfoRetrievingException("Service provider unset, can not get connections");
-        }
-        return getSPConnection(currentSP);
-    }
-    
+    //
+    // public ConnectionRepository getConnectionRepository() {
+    // return connectionRepository;
+    // }
+    //
+    // public SPConnectionRetriever getSPConnectionRetriever() throws SpInfoRetrievingException {
+    //
+    // if (currentSP==null) {
+    // throw new SpInfoRetrievingException("Service provider unset, can not get connections");
+    // }
+    // return getSPConnection(currentSP);
+    // }
+    //
     public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
-        if (currentUser != null)  {
+        SPConnectionRetriever toReturn = null;
+        if (currentUser != null) {
+
             switch (sp) {
             case FACEBOOK:
                 try {
-                    FBConnectionRetriever.setFacebook(connectionRepository.getPrimaryConnection(Facebook.class).getApi());
+                    toReturn = new FBConnectionRetrieverImpl(connectionRepository.getPrimaryConnection(Facebook.class)
+                            .getApi());
+                } catch (NotConnectedException e) {
+
                 }
-                catch (NotConnectedException e) {
-                    FBConnectionRetriever.setFacebook(null);
-                }
-                return FBConnectionRetriever;
-                
+                break;
+
             case LINKEDIN:
                 try {
-                    LIConnectionRetriever.setLinkedIn(connectionRepository.getPrimaryConnection(LinkedIn.class).getApi());
-               
+                    toReturn = new LIConnectionRetrieverImpl(connectionRepository.getPrimaryConnection(LinkedIn.class)
+                            .getApi());
+
+                } catch (NotConnectedException e) {
+
                 }
-                catch (NotConnectedException e) {
-                    LIConnectionRetriever.setLinkedIn(null);
-                }
-                return LIConnectionRetriever;
- 
+                break;
+
             }
         }
-        return null;
+        return toReturn;
     }
 }
