@@ -1,8 +1,6 @@
 package com.dynamease.serviceproviders;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +13,13 @@ import org.springframework.social.facebook.api.Reference;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("FBConnectionRetriever")
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
 
@@ -84,13 +84,8 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
             SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.FACEBOOK);
             toReturn.add(spInfo);
             FacebookProfile profile = facebook.userOperations().getUserProfile(ref.getId());
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos;
             try {
-                oos = new ObjectOutputStream(baos);
-                oos.writeObject(profile);
-                spInfo.setInfo(baos.toString());
-                oos.close();
+                spInfo.setInfo(MAPPER.writeValueAsString(profile));
                 logger.info(String.format("Succesfully retrieved facebook profile info for %s : %s", ref.getName(), spInfo.getInfo()));
             } catch (IOException e) {
                 logger.error(String.format("Serializing Facebook Profile for %s : %s", ref.getName(), e.getMessage()),e);

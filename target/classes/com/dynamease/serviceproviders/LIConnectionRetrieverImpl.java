@@ -1,8 +1,6 @@
 package com.dynamease.serviceproviders;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +13,13 @@ import org.springframework.social.linkedin.api.SearchParameters;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("LIConnectionRetriever")
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(LIConnectionRetrieverImpl.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
     
@@ -89,13 +89,8 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
             SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.LINKEDIN);
             toReturn.add(spInfo);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos;
-            try {
-                oos = new ObjectOutputStream(baos);
-                oos.writeObject(profile);
-                spInfo.setInfo(baos.toString());
-                oos.close();
+           try {
+                spInfo.setInfo(MAPPER.writeValueAsString(profile));
                 logger.info(String.format("Succesfully retrieved Linked profile info for %s : %s", person.fullName(),
                         spInfo.getInfo()));
             } catch (IOException e) {

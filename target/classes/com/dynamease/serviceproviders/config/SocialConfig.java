@@ -109,7 +109,7 @@ public class SocialConfig {
      *             if the user is not connected to facebook.
      */
     @Bean
-    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
     public Facebook facebook() {
         return connectionRepository().getPrimaryConnection(Facebook.class).getApi();
     }
@@ -121,7 +121,7 @@ public class SocialConfig {
      *             if the user is not connected to Linkedin.
      */
     @Bean
-    @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
     public LinkedIn linkedIn() {
         return connectionRepository().getPrimaryConnection(LinkedIn.class).getApi();
     }

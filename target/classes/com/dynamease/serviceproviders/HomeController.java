@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.serviceproviders.config.Uris;
-import com.dynamease.serviceproviders.user.User;
 
 /**
  * Simple little @Controller that invokes Facebook and renders the result. The injected
@@ -34,6 +35,9 @@ public class HomeController {
 
     @Autowired
     private SPResolver spResolver;
+    
+    @Autowired
+    private ConnectionRepository connectionRepository;
 
     @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
     public String home(HttpServletRequest request, Model model) {
@@ -86,6 +90,16 @@ public class HomeController {
         ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
         mav.addObject("nom", id);
         return mav;
+    }
+
+    
+    
+    @RequestMapping(value = Uris.DISCONNECT, method = RequestMethod.POST)
+    public RedirectView disconnect(@RequestParam("sp") ServiceProviders sp) {
+
+      connectionRepository.removeConnections(sp.toString().toLowerCase());
+
+        return new RedirectView(Uris.URISPREFIX + Uris.MAIN);
     }
 
     @RequestMapping(value = Uris.SPCHOICE, method = RequestMethod.POST)
