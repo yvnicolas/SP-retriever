@@ -9,6 +9,7 @@ import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.dynamease.serviceproviders.user.CurrentUserContext;
 import com.dynamease.serviceproviders.user.User;
 
 /**
@@ -30,7 +31,7 @@ public class SPResolver {
     // private FBConnectionRetrieverImpl FBConnectionRetriever = new FBConnectionRetrieverImpl();
 
     @Autowired
-    private User currentUser;
+    private CurrentUserContext currentUser;
 
     @Autowired
     private ConnectionRepository connectionRepository;
@@ -38,11 +39,11 @@ public class SPResolver {
     // private LIConnectionRetrieverImpl LIConnectionRetriever = new LIConnectionRetrieverImpl();
 
      public void connectUser(String id) {
-     currentUser.setId(id);
+     currentUser.connect(id);
          }
 
     public void disconnectUser() {
-        this.currentUser = null;
+       currentUser.disconnect();
     }
 
     //
@@ -60,7 +61,7 @@ public class SPResolver {
     //
     public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
         SPConnectionRetriever toReturn = null;
-        if (currentUser != null) {
+        if (currentUser.isConnected()) {
 
             switch (sp) {
             case FACEBOOK:

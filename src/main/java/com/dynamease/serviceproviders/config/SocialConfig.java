@@ -36,6 +36,8 @@ import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
 
 import com.dynamease.serviceproviders.SPResolver;
+import com.dynamease.serviceproviders.user.CurrentUserContext;
+import com.dynamease.serviceproviders.user.CurrentUserContextImpl;
 import com.dynamease.serviceproviders.user.User;
 
 /**
@@ -83,8 +85,8 @@ public class SocialConfig {
 
     @Bean
     @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
-    public User currentUser() {
-        return new User(null);
+    public CurrentUserContext currentUser() {
+        return new CurrentUserContextImpl();
     }
 
     @Bean
