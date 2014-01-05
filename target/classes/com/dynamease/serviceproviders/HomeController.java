@@ -98,6 +98,32 @@ public class HomeController {
         mav.addObject("sp", sp);
         return mav;
     }
+    
+    @RequestMapping(value = Uris.NAMELOOKUP, method = RequestMethod.GET)
+    public String nameInput() {
+        return Uris.NAMELOOKUP;
+    }
+
+    @RequestMapping(value = Uris.NAMELOOKUP, method = RequestMethod.POST)
+    public String nameSearch(@RequestParam("first") String first, @RequestParam("last") String last, Model model) {
+
+        List<SpNameSearch> resultList = new ArrayList<>();
+        for (ServiceProviders sp : ServiceProviders.values()) {
+            SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+            SpNameSearch thisSp = new SpNameSearch(new SPInfo(sp.toString()).update(spAccess));
+            try {
+                thisSp.setListInfo(spAccess.getPersonInfo(new Person(first, last)));
+            } catch (SpInfoRetrievingException e) {
+                logger.warn(String.format("Not able to retrieve %s info for %s %s : %s", sp.toString(), first, last,
+                        e.getMessage()));
+            }
+            resultList.add(thisSp);
+        }
+        
+        model.addAttribute("results", resultList);
+        model.addAttribute("name", first+" "+ last);
+        return Uris.SEARCHRESULT;
+    }
 
     /**
      * Rendering bean class used to exchange info with the JSP
@@ -161,6 +187,32 @@ public class HomeController {
                 URL = spr.getConnectUrl();
             }
             return this;
+        }
+
+    }
+
+    public class SpNameSearch {
+        private SPInfo info;
+        private List<SpInfoPerson> listInfo;
+
+        public SpNameSearch(SPInfo info) {
+            this.info = info;
+        }
+
+        public SPInfo getInfo() {
+            return info;
+        }
+
+        public void setInfo(SPInfo info) {
+            this.info = info;
+        }
+
+        public List<SpInfoPerson> getListInfo() {
+            return listInfo;
+        }
+
+        public void setListInfo(List<SpInfoPerson> listInfo) {
+            this.listInfo = listInfo;
         }
 
     }

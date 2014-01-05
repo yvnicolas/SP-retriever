@@ -17,6 +17,13 @@
                     <input type="hidden" name="sp" value="FACEBOOK" />
                 </form>
             </li>
+            
+                <li class="has-form">
+                <form action="<c:url value="<%=Uris.NAMELOOKUP%>" />" method="GET">
+                    <button type="submit">Search a name</button>
+
+                </form>
+            </li>
 		</ul>
 	</section>
 </nav>

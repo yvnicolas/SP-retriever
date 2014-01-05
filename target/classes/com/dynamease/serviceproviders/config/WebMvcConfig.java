@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package com.dynamease.serviceproviders.config;
-
 import javax.inject.Inject;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -38,21 +36,23 @@ import com.dynamease.serviceproviders.user.UserInterceptor;
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
+    
+  private @Inject
+  UserInterceptor userinterceptor;
+  
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new UserInterceptor(usersConnectionRepository));
+        registry.addInterceptor(userinterceptor);
     }
 
-    /*
-     * Interceptors above are not called if the view controller is not added below
-     */
+   
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController(Uris.SIGNIN);
         registry.addViewController(Uris.SIGNOUT);
-        registry.addViewController(Uris.PARTIALSIGNOUT);
         registry.addViewController(Uris.SIGNINCONFIRM);
         registry.addViewController(Uris.SIGNINFB);
         registry.addViewController(Uris.SIGNINLI);
         registry.addViewController(Uris.APPLICATIONIDINPUT);
+        registry.addViewController(Uris.SEARCHRESULT);
         registry.addViewController(Uris.BYE);
     }
 
@@ -63,8 +63,5 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         viewResolver.setSuffix(Uris.SUFFIX);
         return viewResolver;
     }
-
-    private @Inject
-    UsersConnectionRepository usersConnectionRepository;
 
 }

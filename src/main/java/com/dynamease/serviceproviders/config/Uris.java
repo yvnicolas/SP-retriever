@@ -68,5 +68,9 @@ public final class Uris {
 	public static final String SPRINGFBSIGNIN = SPRINGCONNECTPREFIX+"/facebook";
 	public static final String SPRINGLISIGNIN = SPRINGCONNECTPREFIX+"/linkedin";
 	
+	//Name Input Info
+	public static final String NAMELOOKUP="/nameInput";
+	public static final String SEARCHRESULT="/nameSearch";
+	
 	
 }

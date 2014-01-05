@@ -52,6 +52,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController(Uris.SIGNINFB);
         registry.addViewController(Uris.SIGNINLI);
         registry.addViewController(Uris.APPLICATIONIDINPUT);
+        registry.addViewController(Uris.SEARCHRESULT);
         registry.addViewController(Uris.BYE);
     }
 
