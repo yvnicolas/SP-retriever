@@ -1,5 +1,5 @@
 package com.dynamease.serviceproviders;
 
 public enum ServiceProviders {
-FACEBOOK, LINKEDIN
+FACEBOOK, LINKEDIN, COPAINSDAVANT
 }
