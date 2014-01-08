@@ -20,7 +20,6 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -49,10 +48,11 @@ import org.springframework.social.linkedin.api.ProfileOperations;
 import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
 import org.springframework.web.client.RestOperations;
 
-import com.dynamease.serviceproviders.SPResolver;
+import com.dynamease.serviceproviders.DynProfilePrinter;
+import com.dynamease.serviceproviders.JsonProfilePrinter;
+import com.dynamease.serviceproviders.ProfilePrinter;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 import com.dynamease.serviceproviders.user.CurrentUserContextImpl;
-import com.dynamease.serviceproviders.user.User;
 
 /**
  * Spring Social Configuration.
@@ -165,6 +165,13 @@ public class SocialConfig {
     public ConnectController connectController() {
         return new ConnectController(connectionFactoryLocator(), connectionRepository());
     }
+    
+    
+    @Bean
+    public ProfilePrinter PRINTER() {
+        return new DynProfilePrinter();
+    }
+    
     
     // Void Linked In class used by default when user is not connected
     

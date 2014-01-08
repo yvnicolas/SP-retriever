@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.dynamease.serviceproviders.user;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,12 +24,13 @@ import org.springframework.web.util.CookieGenerator;
  * Utility class for managing the quick_start user cookie that remembers the signed-in user.
  * @author Keith Donald
  */
-public final class UserCookieGenerator {
+
+public class UserCookieGenerator {
 
 	private final CookieGenerator userCookieGenerator = new CookieGenerator();
 
-	public UserCookieGenerator() {
-		userCookieGenerator.setCookieName("persistent_quickstart_user");
+	public UserCookieGenerator(String cookieName) {
+		userCookieGenerator.setCookieName(cookieName);
 	}
 
 	public void addCookie(String userId, HttpServletResponse response) {

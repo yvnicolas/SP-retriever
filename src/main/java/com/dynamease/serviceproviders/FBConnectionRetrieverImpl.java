@@ -19,10 +19,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
 
+    
+    @Autowired
+    private ProfilePrinter PRINTER;
 
     @Autowired
     private Facebook facebook;
@@ -84,12 +86,8 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
             SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.FACEBOOK);
             toReturn.add(spInfo);
             FacebookProfile profile = facebook.userOperations().getUserProfile(ref.getId());
-            try {
-                spInfo.setInfo(MAPPER.writeValueAsString(profile));
-                logger.info(String.format("Succesfully retrieved facebook profile info for %s : %s", ref.getName(), spInfo.getInfo()));
-            } catch (IOException e) {
-                logger.error(String.format("Serializing Facebook Profile for %s : %s", ref.getName(), e.getMessage()),e);
-            }
+            spInfo.setInfo(PRINTER.prettyPrintasString(profile));
+            logger.info(String.format("Succesfully retrieved facebook profile info for %s : %s", ref.getName(), spInfo.getInfo()));
 
         }
         return toReturn;

@@ -1,6 +1,5 @@
 package com.dynamease.serviceproviders;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,26 +12,26 @@ import org.springframework.social.linkedin.api.SearchParameters;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("LIConnectionRetriever")
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(LIConnectionRetrieverImpl.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
-    
+
+    @Autowired
+    private ProfilePrinter PRINTER;
+
     @Autowired
     private LinkedIn linkedIn;
-
 
     public void setLinkedIn(LinkedIn linkedIn) {
         this.linkedIn = linkedIn;
     }
 
     public LIConnectionRetrieverImpl() {
-       
+
     }
 
     public LIConnectionRetrieverImpl(LinkedIn linkedIn) {
@@ -41,8 +40,7 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     @Override
     public List<Person> getConnections() throws SpInfoRetrievingException {
-        
-           
+
         if (!linkedIn.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to LinkedIn");
         }
@@ -75,7 +73,6 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     @Override
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
 
-        
         if (!linkedIn.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to linkedIn");
         }
@@ -90,21 +87,14 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
             SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.LINKEDIN);
             toReturn.add(spInfo);
-           try {
-                spInfo.setInfo(MAPPER.writeValueAsString(profile));
-                logger.info(String.format("Succesfully retrieved Linked profile info for %s : %s", person.fullName(),
-                        spInfo.getInfo()));
-            } catch (IOException e) {
-                logger.error(
-                        String.format("Serializing LinkedIn Profile for %s %s: %s", profile.getFirstName(),
-                                profile.getLastName(), e.getMessage()), e);
-            }
+            spInfo.setInfo(PRINTER.prettyPrintasString(profile));
+            logger.info(String.format("Succesfully retrieved Linked profile info for %s : %s", person.fullName(),
+                    spInfo.getInfo()));
 
         }
 
         return null;
     }
-    
 
     @Override
     public boolean isconnected() {

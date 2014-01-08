@@ -25,10 +25,7 @@ public class SPResolver {
     public SPResolver() {
     }
 
-    // @Autowired
-    // private UsersConnectionRepository usersConnectionRepository;
 
-    // private FBConnectionRetrieverImpl FBConnectionRetriever = new FBConnectionRetrieverImpl();
 
     @Autowired
     private CurrentUserContext currentUser;
@@ -36,10 +33,10 @@ public class SPResolver {
     @Autowired
     private SPConnectionRetriever FBConnectionRetriever;
     
-    @Autowired SPConnectionRetriever LIConnectionRetriever;
+    @Autowired 
+    private SPConnectionRetriever LIConnectionRetriever;
 
-    // private LIConnectionRetrieverImpl LIConnectionRetriever = new LIConnectionRetrieverImpl();
-
+  
      public void connectUser(String id) {
      currentUser.connect(id);
          }
@@ -48,19 +45,7 @@ public class SPResolver {
        currentUser.disconnect();
     }
 
-    //
-    // public ConnectionRepository getConnectionRepository() {
-    // return connectionRepository;
-    // }
-    //
-    // public SPConnectionRetriever getSPConnectionRetriever() throws SpInfoRetrievingException {
-    //
-    // if (currentSP==null) {
-    // throw new SpInfoRetrievingException("Service provider unset, can not get connections");
-    // }
-    // return getSPConnection(currentSP);
-    // }
-    //
+ 
     public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
         SPConnectionRetriever toReturn = null;
       
