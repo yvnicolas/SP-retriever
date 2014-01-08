@@ -18,6 +18,8 @@ package com.dynamease.serviceproviders.config;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +36,18 @@ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.linkedin.api.CommunicationOperations;
+import org.springframework.social.linkedin.api.CompanyOperations;
+import org.springframework.social.linkedin.api.ConnectionOperations;
+import org.springframework.social.linkedin.api.GroupOperations;
+import org.springframework.social.linkedin.api.JobOperations;
 import org.springframework.social.linkedin.api.LinkedIn;
+import org.springframework.social.linkedin.api.NetworkUpdateOperations;
+import org.springframework.social.linkedin.api.ProfileOperations;
 import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
+import org.springframework.web.client.RestOperations;
 
 import com.dynamease.serviceproviders.SPResolver;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
@@ -50,6 +61,9 @@ import com.dynamease.serviceproviders.user.User;
  */
 @Configuration
 public class SocialConfig {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SocialConfig.class);
+    private static final UnConnectedLinkedIn VOIDLI = new UnConnectedLinkedIn();
 
     @Inject
     private Environment environment;
@@ -104,6 +118,7 @@ public class SocialConfig {
 
     /**
      * A proxy to a request-scoped object representing the current user's primary Facebook account.
+     * As Facebook Spring Social allows it, returns a public access to facebook if not connected.
      * 
      * @throws NotConnectedException
      *             if the user is not connected to facebook.
@@ -111,7 +126,14 @@ public class SocialConfig {
     @Bean
     @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
     public Facebook facebook() {
-        return connectionRepository().getPrimaryConnection(Facebook.class).getApi();
+        Facebook toReturn = null;
+        try {
+            toReturn = connectionRepository().getPrimaryConnection(Facebook.class).getApi();
+        }
+        catch (NotConnectedException e){
+            toReturn = new FacebookTemplate();
+        }
+        return toReturn;
     }
 
     /**
@@ -123,7 +145,15 @@ public class SocialConfig {
     @Bean
     @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
     public LinkedIn linkedIn() {
-        return connectionRepository().getPrimaryConnection(LinkedIn.class).getApi();
+        LinkedIn toReturn = VOIDLI;
+        try {
+              toReturn = connectionRepository().getPrimaryConnection(LinkedIn.class).getApi(); 
+        }
+        catch (Exception e){
+            logger.warn(String.format("Unable to find a proper LinkedIn Connection for %s : %s", currentUser().getId(), e.getMessage()));
+        }
+        
+        return toReturn;
     }
 
     /**
@@ -134,6 +164,57 @@ public class SocialConfig {
     @Bean
     public ConnectController connectController() {
         return new ConnectController(connectionFactoryLocator(), connectionRepository());
+    }
+    
+    // Void Linked In class used by default when user is not connected
+    
+    private static final class UnConnectedLinkedIn implements LinkedIn {
+
+        @Override
+        public boolean isAuthorized() {
+            return false;
+        }
+
+        @Override
+        public CommunicationOperations communicationOperations() {
+            return null;
+        }
+
+        @Override
+        public CompanyOperations companyOperations() {
+             return null;
+        }
+
+        @Override
+        public ConnectionOperations connectionOperations() {
+            return null;
+        }
+
+        @Override
+        public GroupOperations groupOperations() {
+            return null;
+        }
+
+        @Override
+        public JobOperations jobOperations() {
+            return null;
+        }
+
+        @Override
+        public NetworkUpdateOperations networkUpdateOperations() {
+            return null;
+        }
+
+        @Override
+        public ProfileOperations profileOperations() {
+            return null;
+        }
+
+        @Override
+        public RestOperations restOperations() {
+            return null;
+        }
+        
     }
 
 }

@@ -74,8 +74,8 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
         
         
-        if (facebook==null) {
-            throw new SpInfoRetrievingException("Retrieving information from a null facebook");
+        if (!facebook.isAuthorized()) {
+            throw new SpInfoRetrievingException("Not connected to facebook");
         }
         List<Reference> queryResponse = facebook.userOperations().search(person.fullName());
         List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();

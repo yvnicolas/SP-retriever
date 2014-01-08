@@ -42,8 +42,9 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     @Override
     public List<Person> getConnections() throws SpInfoRetrievingException {
         
-        if (linkedIn==null) {
-            throw new SpInfoRetrievingException("Retrieving information from a null linkedIn");
+           
+        if (!linkedIn.isAuthorized()) {
+            throw new SpInfoRetrievingException("Not connected to LinkedIn");
         }
         List<LinkedInProfile> connections = linkedIn.connectionOperations().getConnections();
         List<Person> toReturn = new ArrayList<Person>();
@@ -75,8 +76,8 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
 
         
-        if (linkedIn==null) {
-            throw new SpInfoRetrievingException("Retrieving information from a null linkedIn");
+        if (!linkedIn.isAuthorized()) {
+            throw new SpInfoRetrievingException("Not connected to linkedIn");
         }
         List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
 
