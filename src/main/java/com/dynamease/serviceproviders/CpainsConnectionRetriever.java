@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,8 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
         String url = DIRURL + person.getLastName().toLowerCase().substring(0, 1);
         try {
             Document doc = Jsoup.connect(url).get();
-            Elements lettre = doc.getElementsByTag("body");
+            Element lettre2 = doc.getElementsByClass("listelement").get(0);
+            Elements lettre = lettre2.getElementsByTag("li");
             System.out.println(String.format("%s entrees trouvees pour lettre %s", lettre.size(), person.getLastName().toLowerCase().substring(0, 1)));
             logger.debug(String.format("%s entrees trouvees pour lettre %s", lettre.size(), person.getLastName().toLowerCase().substring(0, 1)));
         } catch (IOException e) {
