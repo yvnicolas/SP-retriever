@@ -19,17 +19,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
-    
+
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
 
-    
     @Autowired
     private ProfilePrinter PRINTER;
 
     @Autowired
+    private DynDisambiguer dynDisambiguer;
+
+    @Autowired
     private Facebook facebook;
 
- 
     public FBConnectionRetrieverImpl() {
     }
 
@@ -39,8 +40,8 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     @Override
     public List<Person> getConnections() throws SpInfoRetrievingException {
-        
-        if (facebook==null) {
+
+        if (facebook == null) {
             throw new SpInfoRetrievingException("Retrieving information from a null facebook");
         }
         List<Reference> friends = facebook.friendOperations().getFriends();
@@ -74,21 +75,26 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     @Override
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
-        
-        
+
         if (!facebook.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to facebook");
         }
         List<Reference> queryResponse = facebook.userOperations().search(person.fullName());
         List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
-        for (Reference ref : queryResponse) {
+        if (queryResponse != null) {
+            for (Reference ref : queryResponse) {
 
-            SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.FACEBOOK);
-            toReturn.add(spInfo);
-            FacebookProfile profile = facebook.userOperations().getUserProfile(ref.getId());
-            spInfo.setInfo(PRINTER.prettyPrintasString(profile));
-            logger.info(String.format("Succesfully retrieved facebook profile info for %s : %s", ref.getName(), spInfo.getInfo()));
-
+                FacebookProfile profile = facebook.userOperations().getUserProfile(ref.getId());
+                if (dynDisambiguer.matches(person, profile)) {
+                    SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.FACEBOOK);
+                    toReturn.add(spInfo);
+                    spInfo.setInfo(PRINTER.prettyPrintasString(profile));
+                    logger.debug(String.format("Succesfully retrieved facebook profile info for %s : %s",
+                            ref.getName(), spInfo.getInfo()));
+                } else
+                    logger.debug(String.format("Discarded non matching facebook profile info for %s : %s",
+                            ref.getName(), PRINTER.prettyPrintasString(profile)));
+            }
         }
         return toReturn;
     }
@@ -96,7 +102,7 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     @Override
     public boolean isconnected() {
 
-        if (facebook==null)
+        if (facebook == null)
             return false;
         boolean toReturn = false;
         try {
@@ -115,5 +121,5 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
             return DEFAULTPERMISSIONS;
 
     }
-    
+
 }

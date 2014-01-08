@@ -20,21 +20,27 @@
 		<c:out value="${name}" />
 	</h3>
 
-		<c:forEach items="${results}" var="sp">
-			<c:if test="${sp.info.connected}">
-				<h4>
-					<c:out value="${sp.info.name}" />
-				</h4>
-				<table>
-					<c:forEach items="${sp.listInfo}" var="person">
-						<tr>
-							<c:out value="${person.info }" />
-						</tr>
-					</c:forEach>
-				</table>
-			</c:if>
+	<c:forEach items="${results}" var="sp">
+		<c:if test="${sp.info.connected}">
+			<h4>
+				<c:out value="${sp.info.name}" />
+				:
+				<c:out value="${sp.listInfo.size()}" />
+				correspondances trouvées
+			</h4>
+			<table>
+				<c:forEach items="${sp.listInfo}" var="person">
+					<tr>
+						<td><c:out value="${person.info }" /></td>
+					</tr>
+					<tr>
+						<td>-----------------------</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</c:if>
 
-		</c:forEach>
+	</c:forEach>
 
 </body>
 </html>

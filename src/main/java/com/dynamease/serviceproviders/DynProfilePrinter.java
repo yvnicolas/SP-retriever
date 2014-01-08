@@ -35,6 +35,7 @@ public class DynProfilePrinter implements ProfilePrinter {
         Class<? extends Object> c = profile.getClass();
 
         Method[] methods = c.getMethods();
+        
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < methods.length; i++) {

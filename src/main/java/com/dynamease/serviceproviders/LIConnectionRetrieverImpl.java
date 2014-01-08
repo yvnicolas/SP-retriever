@@ -24,6 +24,9 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     private ProfilePrinter PRINTER;
 
     @Autowired
+    private DynDisambiguer dynDisambiguer;
+
+    @Autowired
     private LinkedIn linkedIn;
 
     public void setLinkedIn(LinkedIn linkedIn) {
@@ -83,17 +86,22 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
         searchQuery.setLastName(person.getLastName());
         List<LinkedInProfile> queryResponse = linkedIn.profileOperations().search(searchQuery).getPeople();
 
-        for (LinkedInProfile profile : queryResponse) {
+        if (queryResponse != null) {
+            for (LinkedInProfile profile : queryResponse) {
 
-            SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.LINKEDIN);
-            toReturn.add(spInfo);
-            spInfo.setInfo(PRINTER.prettyPrintasString(profile));
-            logger.info(String.format("Succesfully retrieved Linked profile info for %s : %s", person.fullName(),
-                    spInfo.getInfo()));
-
+                if (dynDisambiguer.matches(person, profile)) {
+                    SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.LINKEDIN);
+                    toReturn.add(spInfo);
+                    spInfo.setInfo(PRINTER.prettyPrintasString(profile));
+                    logger.info(String.format("Succesfully retrieved Linked profile info for %s : %s",
+                            person.fullName(), spInfo.getInfo()));
+                } else
+                    logger.debug(String.format("Discarded non matching LinkedIn profile info : %s",
+                            PRINTER.prettyPrintasString(profile)));
+            }
         }
 
-        return null;
+        return toReturn;
     }
 
     @Override
