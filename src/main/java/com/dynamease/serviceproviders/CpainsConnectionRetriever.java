@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A retriever for french social network "Copains d'avant"
@@ -23,16 +24,27 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(CpainsConnectionRetriever.class);
 
-    private final String DIRURL = "http://copainsdavant.linternaute.com/glossary/users/";
+    private String DIRURL = "http://copainsdavant.linternaute.com/glossary/users/";
+    
+    @Autowired
+    private HtmlDocRetriever docRetriever;
 
     /**
      * 
      */
     public CpainsConnectionRetriever() {
-        // TODO Auto-generated constructor stub
+        
     }
+    
+    
 
-    /*
+    public CpainsConnectionRetriever(String dIRURL) {
+		DIRURL = dIRURL;
+	}
+
+
+
+	/*
      * (non-Javadoc)
      * 
      * @see com.dynamease.serviceproviders.SPConnectionRetriever#getConnections()
@@ -108,27 +120,34 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
 
         String url = DIRURL + person.getLastName().toLowerCase().substring(0, 1);
-        try {
-            Document doc = Jsoup.connect(url).get();
+        Document doc = docRetriever.fetch(url);
+     
+		// Get the main directory list page for the first letter of the last name
+		Element lettre2 = doc.getElementsByClass("listelement").get(0);
+		Elements lettre = lettre2.getElementsByTag("li");
+		logger.debug(String.format("%s entrees trouvees pour lettre %s", lettre.size(), person.getLastName()
+		        .toLowerCase().substring(0, 1)));
 
-            // Get the main directory list page for the first letter of the last name
-            Element lettre2 = doc.getElementsByClass("listelement").get(0);
-            Elements lettre = lettre2.getElementsByTag("li");
-            logger.debug(String.format("%s entrees trouvees pour lettre %s", lettre.size(), person.getLastName()
-                    .toLowerCase().substring(0, 1)));
-
-            // Find the proper link to follow
-            String sublink = findLetterSublink(lettre, person, 0, lettre.size());
-            logger.debug(String.format("Corresponding link : %s", sublink));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+		// Find the proper link to follow
+		String sublink = findLetterSublink(lettre, person, 0, lettre.size());
+		logger.debug(String.format("Corresponding link : %s", sublink));
 
         return null;
     }
 
-    /**
+    public HtmlDocRetriever getDocRetriever() {
+		return docRetriever;
+	}
+
+
+
+	public void setDocRetriever(HtmlDocRetriever docRetriever) {
+		this.docRetriever = docRetriever;
+	}
+
+
+
+	/**
      * On the letter page of the copains d'avant directory, there is an ordered list of links which
      * html code example is
      * 

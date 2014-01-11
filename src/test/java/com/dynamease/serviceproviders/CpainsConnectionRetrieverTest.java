@@ -2,16 +2,25 @@ package com.dynamease.serviceproviders;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class CpainsConnectionRetrieverTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CpainsConnectionRetrieverTest.class);
-    private static final CpainsConnectionRetriever underTest = new CpainsConnectionRetriever();
-
+    private static final CpainsConnectionRetriever underTest = new CpainsConnectionRetriever("src/test/copains-n.htm");
+    private static final HtmlDocRetriever DOCRETRIEVER = new HtmlDocRetrieverFileInput();
+    
+    @BeforeClass
+    public static void beforeTest() {
+    	underTest.setDocRetriever(DOCRETRIEVER);
+    }
+    
     @Test
     public void testGetPersonInfo() throws SpInfoRetrievingException {
         Person p = new Person("Yves", "Nicolas");
