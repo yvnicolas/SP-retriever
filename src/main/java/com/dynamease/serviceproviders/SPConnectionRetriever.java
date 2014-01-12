@@ -24,6 +24,7 @@ public interface SPConnectionRetriever {
     /**
      * Meant to retrieve information on a person from a service provider connection
      * Returns info as a list if several matches are found
+     * If no match is found, returns an empty list.
      * @param person
      * @return
      * @throws SpInfoRetrievingException 
