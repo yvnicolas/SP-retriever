@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * A retriever for french social network "Copains d'avant"
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Yves Nicolas
  * 
  */
+@Component("CPConnectionRetriever")
 public class CpainsConnectionRetriever implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(CpainsConnectionRetriever.class);
@@ -101,7 +103,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     @Override
     public String getConnectUrl() {
 
-        return null;
+        return DIRURL;
     }
 
     /*
@@ -112,7 +114,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     @Override
     public boolean isconnected() {
 
-        return false;
+        return true;
     }
 
     /*
@@ -122,8 +124,8 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      */
     @Override
     public String getPermissions() {
-        // TODO Auto-generated method stub
-        return null;
+       
+        return "Not Relevant for Copains d'avant";
     }
 
     /*

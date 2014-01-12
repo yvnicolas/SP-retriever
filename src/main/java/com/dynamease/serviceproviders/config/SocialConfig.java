@@ -49,6 +49,8 @@ import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
 import org.springframework.web.client.RestOperations;
 
 import com.dynamease.serviceproviders.DynProfilePrinter;
+import com.dynamease.serviceproviders.HtmlDocRetriever;
+import com.dynamease.serviceproviders.HtmlDocRetrieverConnectedImpl;
 import com.dynamease.serviceproviders.JsonProfilePrinter;
 import com.dynamease.serviceproviders.ProfilePrinter;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
@@ -170,6 +172,11 @@ public class SocialConfig {
     @Bean
     public ProfilePrinter PRINTER() {
         return new DynProfilePrinter();
+    }
+    
+    @Bean
+    public HtmlDocRetriever docRetriever() {
+        return new HtmlDocRetrieverConnectedImpl();
     }
     
     
