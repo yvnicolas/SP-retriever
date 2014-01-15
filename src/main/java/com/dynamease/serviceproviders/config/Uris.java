@@ -47,6 +47,8 @@ public final class Uris {
 	// Application pages proposing to connect to serviceProvider
 	public static final String SIGNINFB = APPCONNECTPREFIX+"/signinfb";
 	public static final String SIGNINLI = APPCONNECTPREFIX+"/signinli";
+	public static final String SIGNINVI = APPCONNECTPREFIX+"/signinvi";
+	
 	
 	//Thank you - good bye
 	public static final String BYE = APPCONNECTPREFIX+"/bye";
@@ -67,6 +69,8 @@ public final class Uris {
 	// Called by Spring Social to manage Service providers authentification
 	public static final String SPRINGFBSIGNIN = SPRINGCONNECTPREFIX+"/facebook";
 	public static final String SPRINGLISIGNIN = SPRINGCONNECTPREFIX+"/linkedin";
+	public static final String SPRINGVISIGIN = SPRINGCONNECTPREFIX+"/viadeo";
+
 	
 	//Name Input Info
 	public static final String NAMELOOKUP="/nameInput";

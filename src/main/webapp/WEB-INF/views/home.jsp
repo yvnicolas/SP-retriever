@@ -9,8 +9,8 @@
 	<ul>
 		<li><a href="<c:url value="<%=Uris.SIGNOUT%>" />"> Complete
 				Sign Out</a></li>
-<%-- 		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> --%>
-<!-- 				Keep Connection to FB</a></li> -->
+		<%-- 		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> --%>
+		<!-- 				Keep Connection to FB</a></li> -->
 	</ul>
 
 	<%@ include file="serviceproviderChoice.jsp"%>
@@ -37,8 +37,8 @@
 				</c:if> <c:if test="${!sp.connected}"> : Disconnected
                                 <form
 						action="<c:url value="${sp.URL }" />" method="POST">
-						<button type="submit">Connect</button>
-						<input type="hidden" name="scope" value="${sp.permissions}" />
+						<button type="submit">Connect</button>				
+							<input type="hidden" name="scope" value="${sp.permissions}" />
 					</form>
 				</c:if></li>
 		</c:forEach>

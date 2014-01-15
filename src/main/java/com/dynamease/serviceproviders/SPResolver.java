@@ -38,6 +38,9 @@ public class SPResolver {
     
     @Autowired
     private SPConnectionRetriever CPConnectionRetriever;
+    
+    @Autowired
+    private SPConnectionRetriever ViadeoConnectionRetriever;
 
   
      public void connectUser(String id) {
@@ -61,6 +64,9 @@ public class SPResolver {
                 
             case COPAINSDAVANT :
                 return CPConnectionRetriever;
+                
+            case VIADEO :
+                return ViadeoConnectionRetriever;
 
             }
         

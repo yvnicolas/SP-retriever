@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.dynamease.serviceproviders.config;
+
 import javax.inject.Inject;
 
 import org.springframework.context.annotation.Bean;
@@ -36,21 +37,20 @@ import com.dynamease.serviceproviders.user.UserInterceptor;
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
-    
-  private @Inject
-  UserInterceptor userinterceptor;
-  
+    private @Inject
+    UserInterceptor userinterceptor;
+
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userinterceptor);
     }
 
-   
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController(Uris.SIGNIN);
         registry.addViewController(Uris.SIGNOUT);
         registry.addViewController(Uris.SIGNINCONFIRM);
         registry.addViewController(Uris.SIGNINFB);
         registry.addViewController(Uris.SIGNINLI);
+        registry.addViewController(Uris.SIGNINVI);
         registry.addViewController(Uris.APPLICATIONIDINPUT);
         registry.addViewController(Uris.SEARCHRESULT);
         registry.addViewController(Uris.BYE);

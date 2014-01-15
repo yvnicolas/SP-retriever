@@ -6,7 +6,7 @@
 <title>Ca Marche</title>
 </head>
 <body>
-	Connexion avec Facebook etablie avec succes
+	Connexion avec facebook etablie avec succes
 	<form action="<c:url value="<%=Uris.MAIN %>" />">
 		<button type="submit">continue</button>
 	</form>

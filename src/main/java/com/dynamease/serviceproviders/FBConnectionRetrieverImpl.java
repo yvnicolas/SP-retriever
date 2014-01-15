@@ -1,6 +1,5 @@
 package com.dynamease.serviceproviders;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.springframework.social.facebook.api.Reference;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.serviceproviders.config.Uris;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("FBConnectionRetriever")
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
