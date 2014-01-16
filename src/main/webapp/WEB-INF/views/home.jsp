@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <%@page import="com.dynamease.serviceproviders.config.Uris"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -6,52 +8,74 @@
 <title>Home</title>
 </head>
 <body>
-	<ul>
-		<li><a href="<c:url value="<%=Uris.SIGNOUT%>" />"> Complete
-				Sign Out</a></li>
-		<%-- 		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> --%>
-		<!-- 				Keep Connection to FB</a></li> -->
-	</ul>
-
-	<%@ include file="serviceproviderChoice.jsp"%>
-	<!-- 	<h3>Your Facebook Friends</h3> -->
-	<!-- 	<ul> -->
-	<%-- 	<c:forEach items="${friends}" var="friend"> --%>
-	<%-- 		<li><img src="http://graph.facebook.com/<c:out value="${friend.id}"/>/picture" align="middle"/><c:out value="${friend.name}"/></li> --%>
-	<%-- 	</c:forEach> --%>
-	<!-- 	</ul>	 -->
+	<h4>Vous êtes connecté sous l'Id ${currentUser.getId() }</h4>
+	<form action="<%=Uris.SIGNOUT%>" method="POST">
+		<button type="submit">Se déconnecter</button>
+	</form>
 
 
-	<h3>
-		Showing available Service Providers :
-		<c:out value="${serviceProvider}" />
-	</h3>
-	<ul>
+	<h4>Statut des connecteurs Service Providers</h4>
+
+
+	<table style="text-align: center">
+		<thead style="text-align: center">
+			<tr>
+				<th width="33%" style="text-align: center">Connecteur</th>
+				<th width="33%" style="text-align: center">Connexion</th>
+				<th width="33%" style="text-align: center">Selection</th>
+			</tr>
+		</thead>
 		<c:forEach items="${serviceProviders}" var="sp">
-			<li><c:out value="${sp.name}" /> <c:if test="${sp.connected}"> : Connected with Permissions : <c:out
-						value="${sp.permissions}" />
-					<form action="<c:url value="<%=Uris.DISCONNECT%>" />" method="POST">
-						<button type="submit">Disconnect</button>
-						<input type="hidden" name="sp" value="${sp.name}" />
-					</form>
-				</c:if> <c:if test="${!sp.connected}"> : Disconnected
-                                <form
-						action="<c:url value="${sp.URL }" />" method="POST">
-						<button type="submit">Connect</button>				
+			<tr>
+				<td><c:out value="${sp.name}" /></td>
+				<c:if test="${sp.connected}">
+					<td><form action="<c:url value="<%=Uris.DISCONNECT%>" />"
+							method="POST">
+							<button type="submit">Disconnect</button>
+							<input type="hidden" name="sp" value="${sp.name}" />
+						</form></td>
+				</c:if>
+				<c:if test="${!sp.connected}">
+					<td>
+						<form action="<c:url value="${sp.URL }" />" method="POST">
+							<button type="submit">Connect</button>
 							<input type="hidden" name="scope" value="${sp.permissions}" />
-					</form>
-				</c:if></li>
+						</form>
+					</td>
+				</c:if>
+				<c:if test="${sp.selected}">
+					<td><form action="<%=Uris.SELECT%>" method="POST">
+							<button type="submit">Unselect</button>
+							<input type="hidden" name="sp" value="${sp.name}" />
+						</form></td>
+				</c:if>
+				<c:if test="${!sp.selected}">
+
+					<td>
+						<form action="<%=Uris.SELECT%>" method="POST">
+							<button type="submit">select</button>
+							<input type="hidden" name="sp" value="${sp.name}" />
+						</form>
+					</td>
+				</c:if>
 		</c:forEach>
-	</ul>
-	<h3>
-		Showing your Connections :
-		<c:out value="${serviceProvider}" />
-	</h3>
-	<ul>
-		<c:forEach items="${connections}" var="connection">
-			<li><c:out value="${connection.firstName}" /> <c:out
-					value="${connection.lastName}" /></li>
-		</c:forEach>
-	</ul>
+
+	</table>
+
+	<h4>Action Menu</h4>
+	<br>
+	<form action="<c:url value="<%=Uris.NAMELOOKUP%>" />" method="GET">
+		<button type="submit">Chercher un nom</button>
+
+	</form>
+	   <br>
+    <form action="<c:url value="<%=Uris.BYE%>" />" method="GET">
+        <button type="submit">Traiter un Fichier</button>
+
+    </form>
+        <br>
+    <form action="<c:url value="<%=Uris.BYE%>" />" method="GET">
+        <button type="submit">Enregistrer mes contacts</button>
+    </form>
 </body>
 </html>

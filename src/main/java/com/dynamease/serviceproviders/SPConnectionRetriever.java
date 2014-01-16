@@ -30,4 +30,9 @@ public interface SPConnectionRetriever {
      * @throws SpInfoRetrievingException 
      */
     public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException;
+    
+    public boolean isSelected();
+    
+    public void select();
+    public void unselect();
 }

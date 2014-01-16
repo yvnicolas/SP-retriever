@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.dynamease.serviceproviders.user;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -44,7 +45,9 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private UserCookieGenerator userCookieGenerator;
 
-  
+    @Autowired
+    private CurrentUserContext currentUser;
+
     public UserInterceptor() {
     }
 
@@ -54,20 +57,18 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         if (shouldGoThru(request))
             return true;
 
-     
         // checking whether connection do the application has been made
         if (!rememberUser(request, response)) {
             logger.debug(String.format("Prehandling : no recognised user, redirecting to signup"));
-            new RedirectView(Uris.SIGNIN, true).render(null, request, response);
+            new RedirectView(Uris.APPLICATIONIDINPUT, true).render(null, request, response);
             return false;
         }
-        
+
         // Signing out
         if (handleSignOut(request, response)) {
             return false;
         }
 
- 
         // At this stage, we can proceed to the regular controller as signing is
         // effective
         return true;
@@ -92,16 +93,14 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 
     // Gets a potential user ID from cookies existing on the system.
     private boolean rememberUser(HttpServletRequest request, HttpServletResponse response) {
-  
-        HttpSession session = request.getSession();
+
         String userId;
-        
-     // First checks whether we have a user in the ongoing session or thru a cookie
-        
-        userId = (String) session.getAttribute("userId");
-        if (userId != null) {
-            logger.debug(String.format("userId %s is found from Http Session attributes ",
-                    userId));
+
+        // First checks whether we have a user in the ongoing session or thru a cookie
+
+        // userId = (String) session.getAttribute("userId");
+        if (currentUser.isConnected()) {
+            logger.debug(String.format("userId %s is found from Http Session attributes ", currentUser.getId()));
             return true;
         }
 
@@ -119,21 +118,23 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         }
 
         else {
-            // User Id is a valid one found from a Cookie, recording it in the session
-            session.setAttribute("userId", userId);
+            // User Id is a valid one found from a Cookie, recording it as the current user and
+            // storing the cookie
+            currentUser.connect(userId);
+            userCookieGenerator.addCookie(null, response);
             return true;
         }
 
     }
 
-    // If signout has been asked 
+    // If signout has been asked
     private boolean handleSignOut(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
-        if ((userId!=null) && request.getServletPath().startsWith(Uris.SIGNOUT)) {
-            session.removeAttribute("userId");
-            new RedirectView(Uris.BYE, true).render(null, request, response);
+
+        if ((currentUser.isConnected()) && request.getServletPath().startsWith(Uris.SIGNOUT)) {
+            logger.debug(String.format("%s requested disconnection", currentUser.getId()));
+            currentUser.disconnect();
+            userCookieGenerator.removeCookie(response);
+            new RedirectView(Uris.MAIN, true).render(null, request, response);
             return true;
         } else
             return false;

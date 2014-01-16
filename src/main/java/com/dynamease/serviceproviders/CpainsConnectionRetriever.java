@@ -507,4 +507,26 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
         return toReturn;
     }
 
+    
+
+    private boolean selected = false;
+    
+    @Override
+    public boolean isSelected() {
+       
+        return selected;
+    }
+
+    @Override
+    public void select() {
+        selected = true;
+        
+    }
+
+    @Override
+    public void unselect() {
+       selected = false;
+        
+    }
+
 }

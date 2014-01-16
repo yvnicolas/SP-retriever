@@ -61,6 +61,9 @@ public final class Uris {
 	
 	// To Disconnect from a Service Provider
 	public static final String DISCONNECT = "/disconnect";
+	
+	// To select or unselect a service provider
+	public static final String SELECT = "/select";
 
 
 	//Application Connection Dance Prefix

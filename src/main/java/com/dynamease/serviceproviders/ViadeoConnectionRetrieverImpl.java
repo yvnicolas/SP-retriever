@@ -118,4 +118,25 @@ public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
 
     }
 
+    private boolean selected = false;
+    
+    @Override
+    public boolean isSelected() {
+       
+        return selected;
+    }
+
+    @Override
+    public void select() {
+        selected = true;
+        
+    }
+
+    @Override
+    public void unselect() {
+       selected = false;
+        
+    }
+
+
 }

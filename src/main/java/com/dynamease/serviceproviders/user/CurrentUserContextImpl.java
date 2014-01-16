@@ -1,6 +1,14 @@
 package com.dynamease.serviceproviders.user;
 
-public class CurrentUserContextImpl implements CurrentUserContext {
+import java.io.Serializable;
+
+public class CurrentUserContextImpl implements CurrentUserContext, Serializable {
+    
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     
     private String currentId = null;
 

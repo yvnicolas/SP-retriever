@@ -17,6 +17,8 @@ import com.dynamease.serviceproviders.config.Uris;
 public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
+    
+    
 
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
 
@@ -118,6 +120,26 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
         else
             return DEFAULTPERMISSIONS;
 
+    }
+
+    private boolean selected = false;
+    
+    @Override
+    public boolean isSelected() {
+       
+        return selected;
+    }
+
+    @Override
+    public void select() {
+        selected = true;
+        
+    }
+
+    @Override
+    public void unselect() {
+       selected = false;
+        
     }
 
 }

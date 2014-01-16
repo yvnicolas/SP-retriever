@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.serviceproviders.config.Uris;
+import com.dynamease.serviceproviders.user.CurrentUserContext;
 
 /**
  * Simple little @Controller that invokes Facebook and renders the result. The injected
@@ -35,9 +36,12 @@ public class HomeController {
 
     @Autowired
     private SPResolver spResolver;
-    
+
     @Autowired
     private ConnectionRepository connectionRepository;
+
+    @Autowired
+    private CurrentUserContext currentUser;
 
     @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
     public String home(HttpServletRequest request, Model model) {
@@ -53,7 +57,7 @@ public class HomeController {
             SPStatusList.add(thisSp);
         }
 
-        model.addAttribute("nom", session.getAttribute("userId"));
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("serviceProviders", SPStatusList);
 
         ServiceProviders currentSp = (ServiceProviders) session.getAttribute("sp");
@@ -82,23 +86,29 @@ public class HomeController {
     }
 
     @RequestMapping(value = Uris.IDPROCESS, method = RequestMethod.POST)
-    public ModelAndView login(HttpServletRequest request, @RequestParam("id") String id) {
+    public RedirectView login(HttpServletRequest request, @RequestParam("id") String id) {
 
-        HttpSession session = request.getSession();
-        spResolver.connectUser(id);
-        session.setAttribute("userId", id);
-        ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
-        mav.addObject("nom", id);
-        return mav;
+        currentUser.connect(id);
+        // ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
+        // mav.addObject("nom", id);
+        return new RedirectView(Uris.MAIN);
     }
 
-    
-    
     @RequestMapping(value = Uris.DISCONNECT, method = RequestMethod.POST)
     public RedirectView disconnect(@RequestParam("sp") ServiceProviders sp) {
 
-      connectionRepository.removeConnections(sp.toString().toLowerCase());
+        connectionRepository.removeConnections(sp.toString().toLowerCase());
 
+        return new RedirectView(Uris.URISPREFIX + Uris.MAIN);
+    }
+
+    @RequestMapping(value = Uris.SELECT, method = RequestMethod.POST)
+    public RedirectView changeSelect(@RequestParam("sp") ServiceProviders sp) {
+        SPConnectionRetriever spr = spResolver.getSPConnection(sp);
+        if (spr.isSelected())
+            spr.unselect();
+        else
+            spr.select();
         return new RedirectView(Uris.URISPREFIX + Uris.MAIN);
     }
 
@@ -112,7 +122,7 @@ public class HomeController {
         mav.addObject("sp", sp);
         return mav;
     }
-    
+
     @RequestMapping(value = Uris.NAMELOOKUP, method = RequestMethod.GET)
     public String nameInput() {
         return Uris.NAMELOOKUP;
@@ -124,18 +134,20 @@ public class HomeController {
         List<SpNameSearch> resultList = new ArrayList<>();
         for (ServiceProviders sp : ServiceProviders.values()) {
             SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-            SpNameSearch thisSp = new SpNameSearch(new SPInfo(sp.toString()).update(spAccess));
-            try {
-                thisSp.setListInfo(spAccess.getPersonInfo(new Person(first, last)));
-            } catch (SpInfoRetrievingException e) {
-                logger.warn(String.format("Not able to retrieve %s info for %s %s : %s", sp.toString(), first, last,
-                        e.getMessage()));
+            if (spAccess.isSelected()) {
+                SpNameSearch thisSp = new SpNameSearch(new SPInfo(sp.toString()).update(spAccess));
+                try {
+                    thisSp.setListInfo(spAccess.getPersonInfo(new Person(first, last)));
+                } catch (SpInfoRetrievingException e) {
+                    logger.warn(String.format("Not able to retrieve %s info for %s %s : %s", sp.toString(), first,
+                            last, e.getMessage()));
+                }
+                resultList.add(thisSp);
             }
-            resultList.add(thisSp);
         }
-        
+
         model.addAttribute("results", resultList);
-        model.addAttribute("name", first+" "+ last);
+        model.addAttribute("name", first + " " + last);
         return Uris.SEARCHRESULT;
     }
 
@@ -148,6 +160,7 @@ public class HomeController {
     public class SPInfo {
         private String name;
         private boolean connected;
+        private boolean selected;
         private String permissions;
         private String URL;
 
@@ -164,6 +177,15 @@ public class HomeController {
             this.connected = false;
             this.permissions = null;
             this.URL = null;
+            this.selected = false;
+        }
+
+        public boolean isSelected() {
+            return selected;
+        }
+
+        public void setSelected(boolean selected) {
+            this.selected = selected;
         }
 
         public String getName() {
@@ -199,6 +221,7 @@ public class HomeController {
                 connected = spr.isconnected();
                 permissions = spr.getPermissions();
                 URL = spr.getConnectUrl();
+                selected = spr.isSelected();
             }
             return this;
         }
