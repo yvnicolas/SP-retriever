@@ -11,6 +11,7 @@ import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.facebook.api.Reference;
 import org.springframework.stereotype.Component;
 
+import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("FBConnectionRetriever")
@@ -39,17 +40,17 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<Person> getConnections() throws SpInfoRetrievingException {
+    public List<PersonBasic> getConnections() throws SpInfoRetrievingException {
 
         if (facebook == null) {
             throw new SpInfoRetrievingException("Retrieving information from a null facebook");
         }
         List<Reference> friends = facebook.friendOperations().getFriends();
-        List<Person> toReturn = new ArrayList<Person>();
+        List<PersonBasic> toReturn = new ArrayList<PersonBasic>();
         for (Reference ref : friends) {
             String name[] = new String[2];
             name = ref.getName().split(" ", 2);
-            toReturn.add(new Person(name[0], name[1]));
+            toReturn.add(new PersonBasic(name[0], name[1]));
         }
 
         return toReturn;
@@ -74,7 +75,7 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
+    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
 
         if (!facebook.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to facebook");

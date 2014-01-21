@@ -3,6 +3,8 @@
  */
 package com.dynamease.serviceproviders;
 
+import com.dynamease.entities.PersonBasic;
+
 /**
  * An entity to store information retrieved on a person from a service provider connection.
  * @author Yves Nicolas
@@ -11,18 +13,18 @@ package com.dynamease.serviceproviders;
 public class SpInfoPerson {
 
     
-    private Person person;
+    private PersonBasic person;
     private ServiceProviders sp;
     private String info;
     
     
-    public SpInfoPerson(Person person, ServiceProviders sp) {
+    public SpInfoPerson(PersonBasic person, ServiceProviders sp) {
         this.person = person;
         this.sp = sp;
     }
 
 
-    public Person getPerson() {
+    public PersonBasic getPerson() {
         return person;
     }
 

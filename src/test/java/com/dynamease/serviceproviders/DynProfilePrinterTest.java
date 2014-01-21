@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.junit.Test;
 import org.springframework.social.facebook.api.FacebookProfile;
 
+import com.dynamease.entities.PersonBasic;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -14,7 +15,7 @@ public class DynProfilePrinterTest {
   
     @Test
     public void test() {
-        Person p = new Person("Yves", "Nicolas");
+        PersonBasic p = new PersonBasic("Yves", "Nicolas");
         System.out.println(underTest.prettyPrintasString(p));
 
     }

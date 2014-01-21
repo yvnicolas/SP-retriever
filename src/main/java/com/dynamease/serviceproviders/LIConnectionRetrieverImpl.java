@@ -11,6 +11,7 @@ import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.linkedin.api.SearchParameters;
 import org.springframework.stereotype.Component;
 
+import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("LIConnectionRetriever")
@@ -42,15 +43,15 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<Person> getConnections() throws SpInfoRetrievingException {
+    public List<PersonBasic> getConnections() throws SpInfoRetrievingException {
 
         if (!linkedIn.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to LinkedIn");
         }
         List<LinkedInProfile> connections = linkedIn.connectionOperations().getConnections();
-        List<Person> toReturn = new ArrayList<Person>();
+        List<PersonBasic> toReturn = new ArrayList<PersonBasic>();
         for (LinkedInProfile connection : connections) {
-            toReturn.add(new Person(connection.getFirstName(), connection.getLastName()));
+            toReturn.add(new PersonBasic(connection.getFirstName(), connection.getLastName()));
         }
         return toReturn;
     }
@@ -74,7 +75,7 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
+    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
 
         if (!linkedIn.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to linkedIn");

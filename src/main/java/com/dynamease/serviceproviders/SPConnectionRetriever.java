@@ -2,13 +2,15 @@ package com.dynamease.serviceproviders;
 
 import java.util.List;
 
+import com.dynamease.entities.PersonBasic;
+
 /**
  * @author Yves Nicolas
  *
  */
 public interface SPConnectionRetriever {
 
-    public List<Person> getConnections() throws SpInfoRetrievingException;
+    public List<PersonBasic> getConnections() throws SpInfoRetrievingException;
     
     public ServiceProviders getActiveSP();
     
@@ -29,7 +31,7 @@ public interface SPConnectionRetriever {
      * @return
      * @throws SpInfoRetrievingException 
      */
-    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException;
+    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException;
     
     public boolean isSelected();
     

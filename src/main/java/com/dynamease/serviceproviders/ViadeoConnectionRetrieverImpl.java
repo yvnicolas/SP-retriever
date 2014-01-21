@@ -10,6 +10,7 @@ import org.springframework.social.viadeo.api.Viadeo;
 import org.springframework.social.viadeo.api.ViadeoProfile;
 import org.springframework.stereotype.Component;
 
+import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("ViadeoConnectionRetriever")
@@ -36,16 +37,16 @@ public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<Person> getConnections() throws SpInfoRetrievingException {
+    public List<PersonBasic> getConnections() throws SpInfoRetrievingException {
 
         if (viadeo == null) {
             throw new SpInfoRetrievingException("Retrieving information from a null viadeo");
         }
         List<ViadeoProfile> connections = viadeo.userOperations().getContacts(100);
-        List<Person> toReturn = new ArrayList<Person>();
+        List<PersonBasic> toReturn = new ArrayList<PersonBasic>();
         for (ViadeoProfile profile : connections) {
 
-            toReturn.add(new Person(profile.getFirstName(), profile.getLastName()));
+            toReturn.add(new PersonBasic(profile.getFirstName(), profile.getLastName()));
         }
 
         return toReturn;
@@ -70,7 +71,7 @@ public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
+    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
 
         if (!viadeo.isAuthorized()) {
             throw new SpInfoRetrievingException("Not connected to viadeo");

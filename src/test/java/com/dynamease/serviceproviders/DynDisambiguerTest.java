@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 
+import com.dynamease.entities.PersonBasic;
+
 public class DynDisambiguerTest {
 
     
@@ -13,7 +15,7 @@ public class DynDisambiguerTest {
     
     @Test
     public void testfb() throws SpInfoRetrievingException {
-        Person p = new Person("Yves", "Nicolas");
+        PersonBasic p = new PersonBasic("Yves", "Nicolas");
         FacebookProfile profile = new FacebookProfile("123", "lqsdkjf mlqdjsf", "coucou", "Yves", "Nicolas", null, null);
         assertTrue (underTest.matches(p, profile));
         p.setLastName("niCOlas");
@@ -29,7 +31,7 @@ public class DynDisambiguerTest {
     
     @Test
     public void testli() throws SpInfoRetrievingException {
-        Person p = new Person("Yves", "Nicolas");
+        PersonBasic p = new PersonBasic("Yves", "Nicolas");
         LinkedInProfile profile = new LinkedInProfile("123", "Yves", "Nicolas", null, "lsdfkjsd", null, null, null);
         assertTrue (underTest.matches(p, profile));
         p.setLastName("niCOlas");

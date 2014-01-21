@@ -1,16 +1,16 @@
-package com.dynamease.serviceproviders;
+package com.dynamease.entities;
 
-public class Person {
+public class PersonBasic implements Person {
 
     private String firstName;
     private String lastName;
     
     private final String SPACE=" ";
     
-    public Person() {
+    public PersonBasic() {
            }
 
-    public Person(String firstName, String lastName) {
+    public PersonBasic(String firstName, String lastName) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
@@ -31,8 +31,7 @@ public class Person {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    
+  
     public String fullName() {
         StringBuilder sb = new StringBuilder(this.firstName);
         sb.append(SPACE);

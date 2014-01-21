@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.CpainsConnectionRetriever.CPPersonComparator;
 import com.dynamease.serviceproviders.CpainsConnectionRetriever.Level1Comparator;
 
@@ -95,16 +96,16 @@ public class CpainsConnectionRetrieverTest {
         
         CPPersonComparator l2cp = underTest.level2Comparator;
         Element e;
-        Person p;
+        PersonBasic p;
         
         e = Jsoup.parse("<li><a href=\"/p/yves-nicolas-16618197\">NICOLAS Yves (LUCON)</a></li>").getElementsByTag("li").get(0);
-        p = new Person("Yves", "Nicolas");
+        p = new PersonBasic("Yves", "Nicolas");
         assertEquals(0, l2cp.compare(p, e));
         
-        p = new Person("Dhakino", "Nzwange");
+        p = new PersonBasic("Dhakino", "Nzwange");
         assertEquals(1, l2cp.compare(p, e));
         
-        p = new Person ("Ngounga ines", "NAELETELA BANZOUZI");
+        p = new PersonBasic ("Ngounga ines", "NAELETELA BANZOUZI");
         assertEquals(-1, l2cp.compare(p, e));
         
     }
@@ -118,23 +119,23 @@ public class CpainsConnectionRetrieverTest {
     
     @Test
     public void testGetInfoPerson() throws SpInfoRetrievingException {
-        Person p;
+        PersonBasic p;
         List<SpInfoPerson> result;
         
         // Check a person with lots of homonyms, splitting on several page
-        p = new Person("Yves", "Nicolas");
+        p = new PersonBasic("Yves", "Nicolas");
         result = underTest.getPersonInfo(p);
         assertEquals(24, result.size());
         logger.debug(String.format("Found %s entries for Yves Nicolas", result.size()));
         
         // An entry which doesnt exist
-        p = new Person("Derrick", "Nicolau");
+        p = new PersonBasic("Derrick", "Nicolau");
         result = underTest.getPersonInfo(p);
         assertEquals(0, result.size());
         logger.debug(String.format("Found %s entries for Derrick Nicolau", result.size()));
         
         // A name with only one Entry
-        p = new Person("Cosma", "Nicolau");
+        p = new PersonBasic("Cosma", "Nicolau");
         result = underTest.getPersonInfo(p);
         assertEquals(1, result.size());
         logger.debug(String.format("Found %s entries for  Cosma Nicolau", result.size()));

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 
@@ -47,7 +48,7 @@ public class HomeController {
     public String home(HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
-        List<Person> connections;
+        List<PersonBasic> connections;
 
         List<SPInfo> SPStatusList = new ArrayList<SPInfo>();
         for (ServiceProviders sp : ServiceProviders.values()) {
@@ -137,7 +138,7 @@ public class HomeController {
             if (spAccess.isSelected()) {
                 SpNameSearch thisSp = new SpNameSearch(new SPInfo(sp.toString()).update(spAccess));
                 try {
-                    thisSp.setListInfo(spAccess.getPersonInfo(new Person(first, last)));
+                    thisSp.setListInfo(spAccess.getPersonInfo(new PersonBasic(first, last)));
                 } catch (SpInfoRetrievingException e) {
                     logger.warn(String.format("Not able to retrieve %s info for %s %s : %s", sp.toString(), first,
                             last, e.getMessage()));

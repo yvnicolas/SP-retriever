@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.dynamease.entities.PersonBasic;
+
 /**
  * A retriever for french social network "Copains d'avant"
  * 
@@ -69,7 +71,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * @see com.dynamease.serviceproviders.SPConnectionRetriever#getConnections()
      */
     @Override
-    public List<Person> getConnections() throws SpInfoRetrievingException {
+    public List<PersonBasic> getConnections() throws SpInfoRetrievingException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -138,7 +140,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     // TODO : Attention, ne traite pas les cas ou Noms et prenoms s'étendent sur deux sub index :
     // exemple NICOLAS Martine
     @Override
-    public List<SpInfoPerson> getPersonInfo(Person person) throws SpInfoRetrievingException {
+    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
 
         List<SpInfoPerson> toReturn = new ArrayList<>();
 
@@ -169,7 +171,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
 
     }
 
-    private List<SpInfoPerson> buildProfilesFromList(Elements liste, Person person, int first, int last) {
+    private List<SpInfoPerson> buildProfilesFromList(Elements liste, PersonBasic person, int first, int last) {
         List<SpInfoPerson> toReturn = new ArrayList<>();
 
         for (int i = first; i <= last; i++) {
@@ -191,7 +193,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * @param comparator
      * @return
      */
-    private List<String> findSubLinks(Person person, String url, CPPersonComparator comparator) {
+    private List<String> findSubLinks(PersonBasic person, String url, CPPersonComparator comparator) {
         Document doc = docRetriever.fetch(url);
         List<String> toReturn = new ArrayList<>();
 
@@ -232,7 +234,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * @param comparator
      * @return
      */
-    private int findFirstMatchIndex(Elements liste, Person person, int start, int end, CPPersonComparator comparator) {
+    private int findFirstMatchIndex(Elements liste, PersonBasic person, int start, int end, CPPersonComparator comparator) {
 
 //        logger.debug(String.format("appel FirstMatch. Start = %s, End = %s", start, end));
         int size = end - start;
@@ -288,7 +290,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * @param comparator
      * @return
      */
-    private int findLastMatchIndex(Elements liste, Person person, int start, int end, CPPersonComparator comparator) {
+    private int findLastMatchIndex(Elements liste, PersonBasic person, int start, int end, CPPersonComparator comparator) {
 
         // logger.debug(String.format("appel Last Match. Start = %s, End = %s", start, end));
         
@@ -373,7 +375,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * @param name
      * @return
      */
-    private int comparePerson(Person person, String name) {
+    private int comparePerson(PersonBasic person, String name) {
         String last = extractLast(name);
         String first = extractFirst(name);
 
@@ -396,7 +398,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
 
     // Helper Classes use to find the person in the different levels
     abstract class CPPersonComparator {
-        abstract int compare(Person p, Element e);
+        abstract int compare(PersonBasic p, Element e);
     }
 
     /**
@@ -407,7 +409,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     class Level1Comparator extends CPPersonComparator {
 
         @Override
-        int compare(Person person, Element element) {
+        int compare(PersonBasic person, Element element) {
 
             Elements names = element.getElementsByTag("strong");
             String first = names.get(0).text();
@@ -451,7 +453,7 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     class Level2Comparator extends CPPersonComparator {
 
         @Override
-        int compare(Person p, Element e) {
+        int compare(PersonBasic p, Element e) {
             String text = e.getElementsByTag("a").get(0).text();
             // skip what is inside parenthesis to get the bare name :
             String name = text.replaceFirst("\\s\\(.*", "");

@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.dynamease.entities.PersonBasic;
+
 /**
  * to filter homonyms
  * 
@@ -36,7 +38,7 @@ public class DynDisambiguer {
      * @return
      * @throws SpInfoRetrievingException
      */
-    public boolean matches(Person person, Object profile) throws SpInfoRetrievingException {
+    public boolean matches(PersonBasic person, Object profile) throws SpInfoRetrievingException {
         Method first;
         Method last;
         Class<? extends Object> c = profile.getClass();
