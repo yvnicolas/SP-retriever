@@ -8,12 +8,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 
 import com.dynamease.addressbooks.DynExternalAddressBookBasic;
@@ -35,7 +43,13 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
     
     private String[] csvHeader = null;
     
-    private CsvBeanReader beanReader=null;
+    private CsvMapReader mapReader = null;
+    
+    private Map<String, String> currentBuffer;
+    
+    private boolean emptyBuffer;
+    
+    private int nberRead;
     
     /**
      * 
@@ -85,45 +99,99 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
             }
         }
         
-        // Initiate the CsvBeanReader for proper access
+        // Initiate the MapReader 
         
-         beanReader = null;
+         mapReader = null;
          try {
              b = new InputStreamReader(new BufferedInputStream(new FileInputStream(input)));
-             beanReader = new CsvBeanReader(b, CsvPreference.STANDARD_PREFERENCE);
+             mapReader = new CsvMapReader(b, CsvPreference.STANDARD_PREFERENCE);
              // beanReader starts reading from line 2 (see above)
              // it is as if we would be reading a file without a header
-             beanReader.getHeader(false);
+             mapReader.getHeader(false);
+             emptyBuffer = true;
+             nberRead = 0;
+             
          } catch (IOException e) {
-             logger.error("Did not manage to get a working CsvBeanReader.", e);
+             logger.error("Did not manage to get a working CSVMapReader.", e);
             return;
          }
          finally {
              try {
-                 beanReader.close();
+                 mapReader.close();
              } catch (IOException e1) {
                  logger.error("Problem trying to close the readers", e1);
              }
          }
         
     }
+    
 
     @Override
     public boolean hasNext() {
-        // TODO Auto-generated method stub
-        return false;
+       if (!emptyBuffer)
+           return true;
+       else  {
+           readNext();
+           return !emptyBuffer;
+       }        
+    }
+
+    private void readNext() {
+        if (emptyBuffer) {
+            try {
+                currentBuffer = mapReader.read(csvHeader);
+            } catch (IOException e) {
+               logger.error(String.format("Error reading Csv row; %s read so far", nberRead),e);
+               return;
+            }
+            
+            if (currentBuffer != null) {
+                nberRead+=1;
+                emptyBuffer = false;
+            }
+        }
+        
     }
 
     @Override
     public int getContactNber() {
-        // TODO Auto-generated method stub
-        return 0;
+        return nberRead;
     }
 
     @Override
     public Person next(Class<?> type) {
         // TODO Auto-generated method stub
-        return null;
+        
+        Object toReturn;
+        
+        if (!this.hasNext())
+            return null;
+        else {
+            
+        try {
+            toReturn = type.newInstance();
+            for (String key : currentBuffer.keySet()) {
+                String methodName = "set"+key;
+                try {
+                Method setter = type.getMethod(methodName, String.class);
+                try {
+                    setter.invoke(toReturn, currentBuffer.get(key));
+                } catch (IllegalArgumentException | InvocationTargetException e) {
+                    logger.warn(String.format("Unable to set %s to %s", key, currentBuffer.get(key)),e);
+                }
+                }
+                catch (NoSuchMethodException e) {
+                    logger.warn(String.format("Trying to invoke method %s on type %s", methodName, type.getName()));
+                }
+            }
+            
+            
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.error(String.format("Can not instantiate object of type %s : %s", type.getName(), e.getMessage()), e);
+            return null;
+        }
+        }
+        return (Person) toReturn;
     }
 
 }
