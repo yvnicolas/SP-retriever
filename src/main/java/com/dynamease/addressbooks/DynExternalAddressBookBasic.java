@@ -1,6 +1,5 @@
 package com.dynamease.addressbooks;
 
-import com.dynamease.entities.Person;
 
 /**
  * Interface which gives a uniform access to an address book so that it can be categorized and used
@@ -32,7 +31,7 @@ public interface DynExternalAddressBookBasic {
     /**
      * returns as a new instance the next Person in the address Book
      */
-    public Person next(Class<?> type);
+    public Object next(Class<?> type);
 
   
 

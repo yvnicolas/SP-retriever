@@ -7,30 +7,30 @@ public class PersonWthAddress extends PersonBasic {
     }
 
 
-    private String street;
-    private String number;
+    private String address;
+    private String phone;
     private String city;
-    private String country;
+    private String zip;
 
     public PersonWthAddress(String firstName, String lastName) {
         super(firstName, lastName);
        
     }
 
-    public String getStreet() {
-        return street;
+    public String getAddress() {
+        return address;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public String getNumber() {
-        return number;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getCity() {
@@ -41,12 +41,13 @@ public class PersonWthAddress extends PersonBasic {
         this.city = city;
     }
 
-    public String getCountry() {
-        return country;
+    public String getZip() {
+        return zip;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setZip(String zip) {
+        this.zip = zip;
     }
 
+   
 }
