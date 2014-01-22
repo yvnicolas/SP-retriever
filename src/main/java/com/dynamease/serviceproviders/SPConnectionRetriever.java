@@ -5,10 +5,12 @@ import java.util.List;
 import com.dynamease.entities.PersonBasic;
 
 /**
+ * An interface to retrive information from a service provider
+ * Type T has to be replaced with the profile type dedicated to the service provider
  * @author Yves Nicolas
  *
  */
-public interface SPConnectionRetriever {
+public interface SPConnectionRetriever{
 
     public List<PersonBasic> getConnections() throws SpInfoRetrievingException;
     
@@ -23,6 +25,7 @@ public interface SPConnectionRetriever {
    public boolean isconnected();
     
     public String getPermissions();
+     
     /**
      * Meant to retrieve information on a person from a service provider connection
      * Returns info as a list if several matches are found
@@ -32,6 +35,9 @@ public interface SPConnectionRetriever {
      * @throws SpInfoRetrievingException 
      */
     public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException;
+    
+    public List<? extends Object> getMatches(PersonBasic person) throws SpInfoRetrievingException;
+    
     
     public boolean isSelected();
     

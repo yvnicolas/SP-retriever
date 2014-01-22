@@ -1,22 +1,20 @@
 package com.dynamease.serviceproviders;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.CpainsConnectionRetriever.CPPersonComparator;
-import com.dynamease.serviceproviders.CpainsConnectionRetriever.Level1Comparator;
 
 
 public class CpainsConnectionRetrieverTest {
@@ -24,12 +22,13 @@ public class CpainsConnectionRetrieverTest {
     private static final Logger logger = LoggerFactory.getLogger(CpainsConnectionRetrieverTest.class);
     private static final CpainsConnectionRetriever underTest = new CpainsConnectionRetriever();
     private static final HtmlDocRetriever DOCRETRIEVER = new HtmlDocRetrieverConnectedImpl();
-    private static final DynProfilePrinter PRINTER = new DynProfilePrinter();
+   
     
     @BeforeClass
     public static void beforeTest() {
     	underTest.setDocRetriever(DOCRETRIEVER);
-    	underTest.setPRINTER(PRINTER);
+    	underTest.setDynDisambiguer(new DynDisambiguer());
+    	underTest.setPRINTER(new DynProfilePrinter());
     }
     
     // Was used for initial testing during development. Some functions not valid anymore.

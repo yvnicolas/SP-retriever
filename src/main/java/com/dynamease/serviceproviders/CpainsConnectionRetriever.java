@@ -23,7 +23,7 @@ import com.dynamease.entities.PersonBasic;
  * 
  */
 @Component("CPConnectionRetriever")
-public class CpainsConnectionRetriever implements SPConnectionRetriever {
+public class CpainsConnectionRetriever extends DynSPConnectionRetriever<CopainsDAvantProfile> {
 
     private static final Logger logger = LoggerFactory.getLogger(CpainsConnectionRetriever.class);
 
@@ -35,8 +35,6 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     @Autowired
     private HtmlDocRetriever docRetriever;
 
-    @Autowired
-    private ProfilePrinter PRINTER;
 
     /**
      * 
@@ -57,13 +55,6 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
         this.docRetriever = docRetriever;
     }
 
-    public ProfilePrinter getPRINTER() {
-        return PRINTER;
-    }
-
-    public void setPRINTER(ProfilePrinter pRINTER) {
-        PRINTER = pRINTER;
-    }
 
     /*
      * (non-Javadoc)
@@ -91,10 +82,11 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
      * 
      * @see com.dynamease.serviceproviders.SPConnectionRetriever#getSPType()
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public Class getSPType() {
         // TODO Auto-generated method stub
-        return null;
+        return CopainsDAvantProfile.class;
     }
 
     /*
@@ -140,9 +132,9 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
     // TODO : Attention, ne traite pas les cas ou Noms et prenoms s'étendent sur deux sub index :
     // exemple NICOLAS Martine
     @Override
-    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
+    public List<CopainsDAvantProfile> getMatchesAsProfiles(PersonBasic person) {
 
-        List<SpInfoPerson> toReturn = new ArrayList<>();
+        List<CopainsDAvantProfile> toReturn = new ArrayList<>();
 
         // Out of the 3 levels : get the first one
         List<String> level1links = findSubLinks(person, DIRURL + "glossary/users/"
@@ -167,19 +159,19 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
             }
 
         }
+        logger.debug(String.format("Found %s CopainsDAvant profiles matches for %s", toReturn.size(), person.fullName()));
         return toReturn;
 
     }
 
-    private List<SpInfoPerson> buildProfilesFromList(Elements liste, PersonBasic person, int first, int last) {
-        List<SpInfoPerson> toReturn = new ArrayList<>();
+    private List<CopainsDAvantProfile> buildProfilesFromList(Elements liste, PersonBasic person, int first, int last) {
+        
+        List<CopainsDAvantProfile> toReturn = new ArrayList<>();
 
         for (int i = first; i <= last; i++) {
             String link = liste.get(i).getElementsByTag("a").get(0).attr("href");
             Elements htmlProfile = docRetriever.fetch(DIRURL + link).getElementsByClass("copains_career__general");
-            SpInfoPerson spInfoPerson = new SpInfoPerson(person, ServiceProviders.COPAINSDAVANT);
-            spInfoPerson.setInfo(PRINTER.prettyPrintasString(buildProfileFromHtml(htmlProfile)));
-            toReturn.add(spInfoPerson);
+            toReturn.add(buildProfileFromHtml(htmlProfile));
         }
 
         return toReturn;
@@ -505,30 +497,11 @@ public class CpainsConnectionRetriever implements SPConnectionRetriever {
             }
 
         }
-        logger.debug(String.format("Extracted Copains d'avant profile : %s", PRINTER.prettyPrintasString(toReturn)));
+  
         return toReturn;
     }
 
     
 
-    private boolean selected = false;
-    
-    @Override
-    public boolean isSelected() {
-       
-        return selected;
-    }
-
-    @Override
-    public void select() {
-        selected = true;
-        
-    }
-
-    @Override
-    public void unselect() {
-       selected = false;
-        
-    }
 
 }

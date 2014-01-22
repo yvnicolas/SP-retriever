@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.dynamease.entities.Person;
 import com.dynamease.entities.PersonBasic;
 
 /**
@@ -63,6 +64,19 @@ public class DynDisambiguer {
 
         return false;
 
+    }
+    
+    /**
+     * Purpose is to rate by best match the different matches if several.
+     * A this stage, returns always the same number
+     *  @param p
+     * @param profile
+     * @return
+     */
+    public int rate(Person p, Object profile) {
+        
+        //TODO : do a real rating
+        return 1;
     }
 
 }

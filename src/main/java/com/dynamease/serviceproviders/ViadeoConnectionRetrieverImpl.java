@@ -14,17 +14,11 @@ import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("ViadeoConnectionRetriever")
-public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
+public class ViadeoConnectionRetrieverImpl extends DynSPConnectionRetriever<ViadeoProfile> {
 
     private static final Logger logger = LoggerFactory.getLogger(ViadeoConnectionRetrieverImpl.class);
 
     static final String DEFAULTPERMISSIONS = "";
-
-    @Autowired
-    private ProfilePrinter PRINTER;
-
-    @Autowired
-    private DynDisambiguer dynDisambiguer;
 
     @Autowired
     private Viadeo viadeo;
@@ -71,31 +65,6 @@ public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
     }
 
     @Override
-    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
-
-        if (!viadeo.isAuthorized()) {
-            throw new SpInfoRetrievingException("Not connected to viadeo");
-        }
-        List<ViadeoProfile> queryResponse = viadeo.userOperations().search(person.fullName());
-        List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
-        if (queryResponse != null) {
-            for (ViadeoProfile profile : queryResponse) {
-
-                if (dynDisambiguer.matches(person, profile)) {
-                    SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.VIADEO);
-                    toReturn.add(spInfo);
-                    spInfo.setInfo(PRINTER.prettyPrintasString(profile));
-                    logger.debug(String.format("Succesfully retrieved video profile info for %s : %s",
-                            profile.getName(), spInfo.getInfo()));
-                } else
-                    logger.debug(String.format("Discarded non matching facebook profile info for %s : %s",
-                            profile.getName(), PRINTER.prettyPrintasString(profile)));
-            }
-        }
-        return toReturn;
-    }
-
-    @Override
     public boolean isconnected() {
 
         if (viadeo == null) {
@@ -119,24 +88,12 @@ public class ViadeoConnectionRetrieverImpl implements SPConnectionRetriever {
 
     }
 
-    private boolean selected = false;
-    
-    @Override
-    public boolean isSelected() {
-       
-        return selected;
-    }
 
     @Override
-    public void select() {
-        selected = true;
-        
-    }
-
-    @Override
-    public void unselect() {
-       selected = false;
-        
+    List<ViadeoProfile> getMatchesAsProfiles(PersonBasic person) {
+        List<ViadeoProfile> toReturn = viadeo.userOperations().search(person.fullName());
+        logger.debug(String.format("Found %s Viadeo profiles matches for %s", toReturn.size(), person.fullName()));
+        return toReturn;
     }
 
 

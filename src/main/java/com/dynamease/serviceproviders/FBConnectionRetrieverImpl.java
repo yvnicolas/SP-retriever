@@ -15,19 +15,13 @@ import com.dynamease.entities.PersonBasic;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("FBConnectionRetriever")
-public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
+public class FBConnectionRetrieverImpl extends DynSPConnectionRetriever<FacebookProfile> {
 
     private static final Logger logger = LoggerFactory.getLogger(FBConnectionRetrieverImpl.class);
     
     
 
     static final String DEFAULTPERMISSIONS = "user_about_me,user_groups,read_friendlists,friends_about_me,friends_hometown,friends_groups";
-
-    @Autowired
-    private ProfilePrinter PRINTER;
-
-    @Autowired
-    private DynDisambiguer dynDisambiguer;
 
     @Autowired
     private Facebook facebook;
@@ -74,31 +68,6 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
         return Uris.SIGNINFB;
     }
 
-    @Override
-    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException {
-
-        if (!facebook.isAuthorized()) {
-            throw new SpInfoRetrievingException("Not connected to facebook");
-        }
-        List<Reference> queryResponse = facebook.userOperations().search(person.fullName());
-        List<SpInfoPerson> toReturn = new ArrayList<SpInfoPerson>();
-        if (queryResponse != null) {
-            for (Reference ref : queryResponse) {
-
-                FacebookProfile profile = facebook.userOperations().getUserProfile(ref.getId());
-                if (dynDisambiguer.matches(person, profile)) {
-                    SpInfoPerson spInfo = new SpInfoPerson(person, ServiceProviders.FACEBOOK);
-                    toReturn.add(spInfo);
-                    spInfo.setInfo(PRINTER.prettyPrintasString(profile));
-                    logger.debug(String.format("Succesfully retrieved facebook profile info for %s : %s",
-                            ref.getName(), spInfo.getInfo()));
-                } else
-                    logger.debug(String.format("Discarded non matching facebook profile info for %s : %s",
-                            ref.getName(), PRINTER.prettyPrintasString(profile)));
-            }
-        }
-        return toReturn;
-    }
 
     @Override
     public boolean isconnected() {
@@ -123,24 +92,19 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
 
     }
 
-    private boolean selected = false;
-    
     @Override
-    public boolean isSelected() {
-       
-        return selected;
+    List<FacebookProfile> getMatchesAsProfiles(PersonBasic person) {
+        List<Reference> queryResponse = facebook.userOperations().search(person.fullName());
+        List<FacebookProfile> toReturn = new ArrayList<>();
+        if (queryResponse != null) {
+            for (Reference ref : queryResponse) {
+
+               toReturn.add(facebook.userOperations().getUserProfile(ref.getId()));
+               }
+        }
+        logger.debug(String.format("Found %s Facebook profiles matches for %s", toReturn.size(), person.fullName()));
+        return toReturn;
     }
 
-    @Override
-    public void select() {
-        selected = true;
-        
-    }
-
-    @Override
-    public void unselect() {
-       selected = false;
-        
-    }
 
 }

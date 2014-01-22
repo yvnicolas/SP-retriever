@@ -1,16 +1,9 @@
 package com.dynamease.serviceproviders;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.NotConnectedException;
-import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.facebook.api.Facebook;
-import org.springframework.social.linkedin.api.LinkedIn;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.dynamease.serviceproviders.user.CurrentUserContext;
-import com.dynamease.serviceproviders.user.User;
 
 /**
  * A factory that can find from the service provider enum the right SPConnectionRetriever
