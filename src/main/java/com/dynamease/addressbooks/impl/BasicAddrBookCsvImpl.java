@@ -6,7 +6,9 @@ package com.dynamease.addressbooks.impl;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +35,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
     @Autowired
     private DynHeaderNormalizer headerDico;
 
-    private File input;
+    private InputStream input;
 
     private String[] csvHeader = null;
 
@@ -46,13 +48,18 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
     private int nberRead;
 
     /**
+     * @throws FileNotFoundException 
      * 
      */
-    public BasicAddrBookCsvImpl(File linkToFile) {
-        this.input = linkToFile;
-        initBasicAddrBookCsvImpl();
+    public BasicAddrBookCsvImpl(File linkToFile) throws FileNotFoundException {
+        this( new FileInputStream(linkToFile));
+     
     }
 
+    public BasicAddrBookCsvImpl(InputStream input) {
+        this.input=input;
+        initBasicAddrBookCsvImpl();
+    }
     private void initBasicAddrBookCsvImpl() {
 
         DynHeaderNormalizer headerDico = new DynHeaderNormalizer();
@@ -63,7 +70,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
         CsvListReader listReader = null;
         InputStreamReader b = null;
         try {
-            b = new InputStreamReader(new BufferedInputStream(new FileInputStream(input)));
+            b = new InputStreamReader(new BufferedInputStream(input));
             listReader = new CsvListReader(b, CsvPreference.STANDARD_PREFERENCE);
             csvHeader = listReader.getHeader(true);
         } catch (IOException e) {
@@ -98,7 +105,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
 
         mapReader = null;
         try {
-            b = new InputStreamReader(new BufferedInputStream(new FileInputStream(input)));
+            b = new InputStreamReader(new BufferedInputStream(input));
             mapReader = new CsvMapReader(b, CsvPreference.STANDARD_PREFERENCE);
             // beanReader starts reading from line 2 (see above)
             // it is as if we would be reading a file without a header

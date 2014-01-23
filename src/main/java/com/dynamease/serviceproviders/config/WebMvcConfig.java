@@ -54,6 +54,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController(Uris.APPLICATIONIDINPUT);
         registry.addViewController(Uris.SEARCHRESULT);
         registry.addViewController(Uris.BYE);
+        registry.addViewController("FileUploadForm");
     }
 
     @Bean

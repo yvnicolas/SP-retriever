@@ -69,7 +69,7 @@
 
 	</form>
 	   <br>
-    <form action="<c:url value="<%=Uris.BYE%>" />" method="GET">
+    <form action="/FileUploadform" method="GET">
         <button type="submit">Traiter un Fichier</button>
 
     </form>
