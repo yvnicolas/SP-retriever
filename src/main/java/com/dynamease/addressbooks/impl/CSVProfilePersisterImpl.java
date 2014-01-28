@@ -1,6 +1,5 @@
 package com.dynamease.addressbooks.impl;
 
-import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -19,7 +18,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import com.dynamease.addressbooks.ProfilePersister;
 
-public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
+public class CSVProfilePersisterImpl implements ProfilePersister {
 
     private static final Logger logger = LoggerFactory.getLogger(CSVProfilePersisterImpl.class);
 

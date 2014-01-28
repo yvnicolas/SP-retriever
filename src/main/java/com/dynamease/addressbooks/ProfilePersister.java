@@ -3,6 +3,7 @@
  */
 package com.dynamease.addressbooks;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
@@ -11,7 +12,7 @@ import java.io.IOException;
  * @author Yves Nicolas
  * 
  */
-public interface ProfilePersister {
+public interface ProfilePersister extends Closeable{
 
     /**
      * Adds the type fields to the list of fields to be recorded, adding the prefix string to
