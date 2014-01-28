@@ -41,40 +41,56 @@ public class CSVProfilePersisterImplTest {
     @Test
     public void testinit() throws IOException {
         logger.debug(String.format("CSVProfilePersisterImpl Initailisation test basic case"));
-        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, outputPath);
+        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(outputPath);
         assertNotNull(underTest);
         underTest.close();
     }
 
+//    @Test
+//    public void testOrdered() throws IOException {
+//        String[] header = { "FirstName", "LastName" };
+//        logger.debug(String
+//                .format("CSVProfilePersisterImpl Initailisation test With given FirstName and LastName as 2 first columns"));
+//        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, outputPath, header);
+//        assertNotNull(underTest);
+//        underTest.close();
+//    }
+//
+//    @Test
+//    public void testOrderedstrict() throws IOException {
+//        String[] header = { "FirstName", "LastName" };
+//        logger.debug(String
+//                .format("CSVProfilePersisterImpl Initailisation test With given FirstName and LastName as 2 first only columns"));
+//        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, outputPath, header,
+//                false);
+//        assertNotNull(underTest);
+//        underTest.close();
+//    }
+
+    
     @Test
-    public void testOrdered() throws IOException {
-        String[] header = { "FirstName", "LastName" };
-        logger.debug(String
-                .format("CSVProfilePersisterImpl Initailisation test With given FirstName and LastName as 2 first columns"));
-        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, outputPath, header);
-        assertNotNull(underTest);
-        underTest.close();
+    public void testIllegalState() throws IOException {
+        String fileName = System.getProperty("java.io.tmpdir") + "/ecritureIllegal.csv";
+        logger.debug(String.format("Test illegal state"));
+        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(fileName);
+        try {
+            underTest.persist(yni);
+            fail("Should raise Illegal State Exception here");
+        }
+        catch (IllegalStateException e) {}
+        finally {
+            underTest.close();
+        }
+    
     }
-
-    @Test
-    public void testOrderedstrict() throws IOException {
-        String[] header = { "FirstName", "LastName" };
-        logger.debug(String
-                .format("CSVProfilePersisterImpl Initailisation test With given FirstName and LastName as 2 first only columns"));
-        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, outputPath, header,
-                false);
-        assertNotNull(underTest);
-        underTest.close();
-    }
-
     @Test
     public void testEcritureSimple() throws IOException {
 
-        String[] resultats = { "Address,City,Phone,Zip,LastName,FirstName",
-                "4 rue de la ravine,Houlbec Cocherel,0610278087,27120,Nicolas,Yves", ",Breuilpont,,,Joly,Pauline" };
+
         String fileName = System.getProperty("java.io.tmpdir") + "/ecriture1.csv";
         logger.debug(String.format("Test ecriture Simple"));
-        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, fileName);
+        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(fileName);
+        underTest.setTypeToRecord(PersonWthAddress.class,"");
         underTest.persist(yni);
         underTest.persist(pjo);
         underTest.close();
@@ -99,7 +115,8 @@ public class CSVProfilePersisterImplTest {
         String[] header = { "FirstName", "LastName","City","Phone" };
         String fileName = System.getProperty("java.io.tmpdir") + "/ecriture2.csv";
         logger.debug(String.format("Test ecriture contrainte"));
-        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(PersonWthAddress.class, fileName, header, false);
+        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(fileName);
+        underTest.setTypeToRecord(PersonWthAddress.class, "", header);
         underTest.persist(yni);
         underTest.persist(pjo);
         underTest.close();
@@ -115,6 +132,47 @@ public class CSVProfilePersisterImplTest {
         }
         assertEquals(3, lineCount);
         in.close();
+
+    }
+    
+    @Test
+    public void testEcritureMultiple() throws IOException {
+        String[] header1 = { "FirstName", "LastName","City"};
+        String[] header2= { "Address", "Phone","Zip"};
+        String fileName = System.getProperty("java.io.tmpdir") + "/ecriture3.csv";
+        logger.debug(String.format("Test ecriture Mutliple"));
+        CSVProfilePersisterImpl underTest = new CSVProfilePersisterImpl(fileName);
+        underTest.setTypeToRecord(PersonWthAddress.class, "", header1);
+        underTest.setFieldToRecord("LinkedIn_count");
+        underTest.setTypeToRecord(PersonWthAddress.class, "LinkedIn_", header2);
+ 
+        
+        // first record
+        underTest.persistPartial(yni, "");
+        underTest.persistPartialOneValue("2","LinkedIn_count");
+        underTest.persistPartial(yni, "LinkedIn_");
+        underTest.flush();
+        
+        // second redcord
+        underTest.persistPartial(pjo, "");
+        underTest.persistPartialOneValue("5","LinkedIn_count");
+        underTest.persistPartial(pjo, "LinkedIn_");
+        underTest.flush();
+        
+        underTest.close();
+
+        InputStreamReader f = new InputStreamReader(new FileInputStream(fileName));
+        Scanner in = new Scanner(f);
+        int lineCount = 0;
+        while (in.hasNext()) {
+            String line = in.nextLine();
+//            assertTrue(resultats[lineCount].equals(line));
+            lineCount++;
+            logger.debug(String.format("Ligne %s fichier ecrit : %s", lineCount, line));
+        }
+        assertEquals(3, lineCount);
+        in.close();
+
 
     }
 }

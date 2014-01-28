@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,13 +43,13 @@ public class BasicAddrBookCsvImplTest {
     }
 
     @Test
-    public void testInit() {
+    public void testInit() throws FileNotFoundException {
         BasicAddrBookCsvImpl underTest = new BasicAddrBookCsvImpl(file1);
         assertNotNull(underTest);
     }
     
     @Test
-    public void testParcours() {
+    public void testParcours() throws FileNotFoundException {
         BasicAddrBookCsvImpl underTest = new BasicAddrBookCsvImpl(file1);
         int compteur=0;
         while (underTest.hasNext()) {

@@ -38,8 +38,6 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
         this.mapWriter = new CsvMapWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
     }
 
- 
-
     /**
      * Alternative constructor, the fields stated in csv header will appear first in the columns in
      * the order they are given,
@@ -56,46 +54,47 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
      *            subsequently with no specific order
      * @throws IOException
      */
-//    public CSVProfilePersisterImpl(String filePath, String[] csvHeader, boolean partial) throws IOException {
-//
-//        // Opening Map Writer
-//
-//        mapWriter = new CsvMapWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
-//
-//        // Initiate the header
-//
-//        if (partial) {
-//            List<String> headersAsList;
-//            if (csvHeader == null) {
-//                headersAsList = new ArrayList<>();
-//            } else {
-//                headersAsList = new ArrayList<>(Arrays.asList(csvHeader));
-//            }
-//
-//            // add non existing fields in the list
-//            for (Method m : type.getMethods()) {
-//                if (m.getName().startsWith("set")) {
-//                    String fieldName = m.getName().substring(3);
-//                    if (!headersAsList.contains(fieldName))
-//                        headersAsList.add(fieldName);
-//                }
-//            }
-//
-//            // convert back the headers to an array
-//            this.csvHeader = new String[headersAsList.size()];
-//            headersAsList.toArray(this.csvHeader);
-//        } else
-//            this.csvHeader = csvHeader;
-//
-//        if (logger.isDebugEnabled())
-//            for (int i = 0; i < this.csvHeader.length; i++) {
-//                logger.info(String.format("Element %d du header :  %s", i, this.csvHeader[i]));
-//            }
-//
-//        // write Header
-//        mapWriter.writeHeader(this.csvHeader);
-//
-//    }
+    // public CSVProfilePersisterImpl(String filePath, String[] csvHeader, boolean partial) throws
+    // IOException {
+    //
+    // // Opening Map Writer
+    //
+    // mapWriter = new CsvMapWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
+    //
+    // // Initiate the header
+    //
+    // if (partial) {
+    // List<String> headersAsList;
+    // if (csvHeader == null) {
+    // headersAsList = new ArrayList<>();
+    // } else {
+    // headersAsList = new ArrayList<>(Arrays.asList(csvHeader));
+    // }
+    //
+    // // add non existing fields in the list
+    // for (Method m : type.getMethods()) {
+    // if (m.getName().startsWith("set")) {
+    // String fieldName = m.getName().substring(3);
+    // if (!headersAsList.contains(fieldName))
+    // headersAsList.add(fieldName);
+    // }
+    // }
+    //
+    // // convert back the headers to an array
+    // this.csvHeader = new String[headersAsList.size()];
+    // headersAsList.toArray(this.csvHeader);
+    // } else
+    // this.csvHeader = csvHeader;
+    //
+    // if (logger.isDebugEnabled())
+    // for (int i = 0; i < this.csvHeader.length; i++) {
+    // logger.info(String.format("Element %d du header :  %s", i, this.csvHeader[i]));
+    // }
+    //
+    // // write Header
+    // mapWriter.writeHeader(this.csvHeader);
+    //
+    // }
 
     private void initWriting() throws IOException {
 
@@ -106,8 +105,10 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
 
     }
 
-    @Override
-    public void persist(Object Profile) throws IOException {
+    private void checkReadyForWriting() throws IOException {
+        if (this.csvHeader == null) {
+            throw new IllegalStateException("CSV Profile Writer need a set up for types before writing");
+        }
         if (!writingBegan)
             try {
                 initWriting();
@@ -116,6 +117,12 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
                 logger.error(String.format("Error initializing writing : %s", e1.getMessage()));
                 throw (e1);
             }
+
+    }
+
+    @Override
+    public void persist(Object Profile) throws IOException {
+        checkReadyForWriting();
 
         Map<String, String> toWrite = new HashMap<>();
 
@@ -131,7 +138,7 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
                     | InvocationTargetException e) {
                 logger.error(
                         String.format("Error invoking method %s on %s: %s", methodName, Profile.toString(),
-                                e.getMessage()), e);
+                                e.getMessage()));
             }
         }
 
@@ -154,14 +161,8 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
     @Override
     public void persistPartial(Object profile, String prefix) throws IOException {
 
-        if (!writingBegan)
-            try {
-                initWriting();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                logger.error(String.format("Error initializing writing : %s", e1.getMessage()));
-                throw (e1);
-            }
+        checkReadyForWriting();
+        
         // initiate the map that will finally be written if writing process has not begun
         if (partialBeingWritten == null) {
             partialBeingWritten = new HashMap<>();
@@ -181,11 +182,30 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
                         | InvocationTargetException e) {
                     logger.error(
                             String.format("Error invoking method %s on %s: %s", methodName, profile.toString(),
-                                    e.getMessage()), e);
+                                    e.getMessage()));
                 }
             }
         }
 
+    }
+    
+    @Override
+    public void persistPartialOneValue(String value, String field) throws IOException {
+        checkReadyForWriting();
+        
+        // initiate the map that will finally be written if writing process has not begun
+        if (partialBeingWritten == null) {
+            partialBeingWritten = new HashMap<>();
+        }
+        
+        if (Arrays.asList(csvHeader).contains(field)) {
+            partialBeingWritten.put(field, value);
+        }
+        else {
+            logger.warn(String.format("Field %s not present in CSV Headers", field));
+        }
+
+        
     }
 
     @Override
@@ -208,16 +228,16 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
         if (writingBegan)
             throw new IllegalStateException(
                     "Can not add a type to record in Profile persister : writing has already begun");
-        
+
         List<String> headersAsList;
         if (csvHeader == null) {
             headersAsList = new ArrayList<>();
         } else {
             headersAsList = new ArrayList<>(Arrays.asList(csvHeader));
         }
-        
+
         for (Method m : type.getMethods()) {
-            if (m.getName().startsWith("get")) {
+            if ((m.getName().startsWith("get")) && (m.getReturnType().getName()=="java.lang.String")) {
                 String fieldName = prefix + m.getName().substring(3);
                 if (!headersAsList.contains(fieldName))
                     headersAsList.add(fieldName);
@@ -233,7 +253,7 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
     @Override
     public void setTypeToRecord(Class<? extends Object> type, String prefix, String[] fields)
             throws IllegalStateException {
-        
+
         if (writingBegan)
             throw new IllegalStateException(
                     "Can not add a type to record in Profile persister : writing has already begun");
@@ -244,15 +264,16 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
         } else {
             headersAsList = new ArrayList<>(Arrays.asList(csvHeader));
         }
-        
-        for (int i=0; i<fields.length; i++) {
+
+        for (int i = 0; i < fields.length; i++) {
             try {
-                type.getMethod("get"+fields[i]);
+                type.getMethod("get" + fields[i]);
                 String fieldName = prefix + fields[i];
                 if (!headersAsList.contains(fieldName))
                     headersAsList.add(fieldName);
             } catch (NoSuchMethodException | SecurityException e) {
-               logger.warn(String.format("%s is not a valid field for type %s : %s", fields[i], type.getName(), e.getMessage()));
+                logger.warn(String.format("%s is not a valid field for type %s : %s", fields[i], type.getName(),
+                        e.getMessage()));
             }
         }
 
@@ -261,5 +282,29 @@ public class CSVProfilePersisterImpl implements ProfilePersister, Closeable {
         headersAsList.toArray(this.csvHeader);
 
     }
+
+    @Override
+    public void setFieldToRecord(String field) throws IllegalStateException {
+        if (writingBegan)
+            throw new IllegalStateException(
+                    "Can not add a type to record in Profile persister : writing has already begun");
+
+        List<String> headersAsList;
+        if (csvHeader == null) {
+            headersAsList = new ArrayList<>();
+        } else {
+            headersAsList = new ArrayList<>(Arrays.asList(csvHeader));
+        }
+
+        if (!headersAsList.contains(field))
+            headersAsList.add(field);
+        
+        
+        // convert back the headers to an array
+        this.csvHeader = new String[headersAsList.size()];
+        headersAsList.toArray(this.csvHeader);
+    }
+
+   
 
 }

@@ -39,6 +39,15 @@ public interface ProfilePersister {
      */
     public void setTypeToRecord(Class<? extends Object> type, String prefix, String fields[])
             throws IllegalStateException;
+    
+    
+    
+    /**
+     * @param Field
+     * @throws IllegalStateException
+     */
+    public void setFieldToRecord(String Field) throws IllegalStateException;
+    
 
     /**
      * This method enable to persist one object as a whole. Equivalent to persist(profile,"");
@@ -59,7 +68,15 @@ public interface ProfilePersister {
      * @throws IOException 
      */
     public void persistPartial(Object Profile, String prefix) throws IOException;
-
+    
+    /**
+     * Enable to add one String information to the object currently being persisted.
+     * @param value
+     * @param field
+     * @throws IOException
+     */
+    public void persistPartialOneValue(String value, String field) throws IOException;
+    
     /**
      * Do the actual persistence writing after several persistPartial
      */
