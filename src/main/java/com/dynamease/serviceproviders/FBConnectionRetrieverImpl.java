@@ -85,9 +85,10 @@ public class FBConnectionRetrieverImpl extends DynSPConnectionRetriever<Facebook
     @Override
     public String getPermissions() {
 
-        if (isconnected())
-            return facebook.userOperations().getUserPermissions().toString();
-        else
+        // Seems to be a bug with the permissions real time info so skip it for the moment.
+//        if (isconnected())
+//            return facebook.userOperations().getUserPermissions().toString();
+//        else
             return DEFAULTPERMISSIONS;
 
     }

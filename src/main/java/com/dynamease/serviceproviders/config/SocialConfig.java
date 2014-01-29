@@ -90,6 +90,7 @@ public class SocialConfig {
                 environment.getProperty("linkedin.consumerSecret")));
         registry.addConnectionFactory(new ViadeoConnectionFactory(environment.getProperty("viadeo.consumerKey"),
                 environment.getProperty("viadeo.consumerSecret")));
+        logger.debug(String.format("Connexion Factory Locator Creation"));
         return registry;
     }
 
@@ -103,6 +104,7 @@ public class SocialConfig {
     public UsersConnectionRepository usersConnectionRepository() {
         JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(dataSource,
                 connectionFactoryLocator(), Encryptors.noOpText());
+        logger.debug(String.format("UserconnectionRepository creation"));
         return repository;
 
     }
@@ -110,6 +112,7 @@ public class SocialConfig {
     @Bean
     @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
     public CurrentUserContext currentUser() {
+        logger.debug(String.format("Creation of a new Current User Context Implementation"));
         return new CurrentUserContextImpl();
     }
 

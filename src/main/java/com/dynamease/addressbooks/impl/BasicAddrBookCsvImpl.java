@@ -35,8 +35,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
     @Autowired
     private DynHeaderNormalizer headerDico;
 
-    private InputStream input;
-
+   
     private String[] csvHeader = null;
 
     private CsvMapReader mapReader = null;
@@ -52,15 +51,10 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
      * 
      */
     public BasicAddrBookCsvImpl(File linkToFile) throws FileNotFoundException {
-        this( new FileInputStream(linkToFile));
+       initFileBasicAddrBookCsvImpl(linkToFile);
      
     }
-
-    public BasicAddrBookCsvImpl(InputStream input) {
-        this.input=input;
-        initBasicAddrBookCsvImpl();
-    }
-    private void initBasicAddrBookCsvImpl() {
+    private void initFileBasicAddrBookCsvImpl(File file) {
 
         DynHeaderNormalizer headerDico = new DynHeaderNormalizer();
 
@@ -70,20 +64,20 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
         CsvListReader listReader = null;
         InputStreamReader b = null;
         try {
-            b = new InputStreamReader(new BufferedInputStream(input));
+            b = new InputStreamReader(new FileInputStream(file));
             listReader = new CsvListReader(b, CsvPreference.STANDARD_PREFERENCE);
             csvHeader = listReader.getHeader(true);
         } catch (IOException e) {
             logger.info("Did not manage to get the Csv Header", e);
         }
-        // finally {
-        // try {
-        // listReader.close();
-        // } catch (IOException e1) {
-        // logger.info("Problem trying to close the readers", e1);
-        // return;
-        // }
-        // }
+//         finally {
+//         try {
+//         listReader.close();
+//         } catch (IOException e1) {
+//         logger.info("Problem trying to close the readers", e1);
+//         return;
+//         }
+//         }
 
         // Header Normalization
         for (int i = 0; i < csvHeader.length; i++) {
@@ -105,7 +99,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
 
         mapReader = null;
         try {
-            b = new InputStreamReader(new BufferedInputStream(input));
+            b = new InputStreamReader(new FileInputStream(file));
             mapReader = new CsvMapReader(b, CsvPreference.STANDARD_PREFERENCE);
             // beanReader starts reading from line 2 (see above)
             // it is as if we would be reading a file without a header
@@ -126,6 +120,8 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
         // }
 
     }
+
+  
 
     @Override
     public boolean hasNext() {

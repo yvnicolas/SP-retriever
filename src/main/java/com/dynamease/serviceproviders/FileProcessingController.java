@@ -1,5 +1,6 @@
 package com.dynamease.serviceproviders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.addressbooks.DynExternalAddressBookBasic;
 import com.dynamease.addressbooks.PersisterFactory;
@@ -40,9 +42,12 @@ public class FileProcessingController {
     
      
     @RequestMapping(value = "/import", method = RequestMethod.POST)
-    public ModelAndView process(@RequestParam("file") MultipartFile file) {
+    public RedirectView process(@RequestParam("file") MultipartFile file) {
         try {
-            DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(file.getInputStream());
+            String localFilename = System.getProperty("java.io.tmpdir") + "/"+file.getOriginalFilename();
+            File localFile = new File(localFilename);
+            file.transferTo(localFile);
+            DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(localFile);
             
             // Prepare the output file for headers
             ProfilePersister persister = initPersister(file.getOriginalFilename());
@@ -50,6 +55,7 @@ public class FileProcessingController {
             
             while (namesInput.hasNext()) {
                 PersonWthAddress person = (PersonWthAddress) namesInput.next(PersonWthAddress.class);
+                logger.debug(String.format("Processing %s", person.fullName()));
                 
                 // First write the initial values
                 persister.persistPartial(person, "");
@@ -57,8 +63,9 @@ public class FileProcessingController {
                 for(ServiceProviders sp : ServiceProviders.values()) {
                     SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
                     if (spAccess.isSelected()) {
+                        logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
                         List<? extends Object> matches = spAccess.getMatches(person);
-                        
+                        logger.debug(String.format("Found %s matches", matches.size()));
                         // Stores count and then the first element in list (best data considered)
                         persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString()+"_count");
                         persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString()+"_");
@@ -80,7 +87,7 @@ public class FileProcessingController {
             e.printStackTrace();
         }
         
-        return null;
+        return new RedirectView("/");
     }
 
 

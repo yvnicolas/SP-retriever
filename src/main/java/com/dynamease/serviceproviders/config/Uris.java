@@ -20,6 +20,8 @@ public final class Uris {
 	// Uris called once all connections have been established
 	public static final String WORK = "/home";
 	
+	public static final String FILEUPLOAD = "/FileUploadForm";
+	
 
 	//Application Connection Dance Prefix
 	public static final String APPCONNECTPREFIX="/appconnect";

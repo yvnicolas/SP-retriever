@@ -69,7 +69,7 @@
 
 	</form>
 	   <br>
-    <form action="/FileUploadform" method="GET">
+    <form action="<%=Uris.FILEUPLOAD %>" method="GET">
         <button type="submit">Traiter un Fichier</button>
 
     </form>
