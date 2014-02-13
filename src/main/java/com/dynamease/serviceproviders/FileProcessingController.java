@@ -27,127 +27,158 @@ import com.dynamease.serviceproviders.user.CurrentUserContext;
 @Controller
 public class FileProcessingController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileProcessingController.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(FileProcessingController.class);
 
-    private static final String[] pwaFields = { "FirstName", "LastName", "Phone", "Address", "Zip", "City" };
+	private static final String[] pwaFields = { "FirstName", "LastName",
+			"Phone", "Address", "Zip", "City" };
 
-    @Autowired
-    private SPResolver spResolver;
+	@Autowired
+	private SPResolver spResolver;
 
-    @Autowired
-    private CurrentUserContext currentUser;
+	@Autowired
+	private CurrentUserContext currentUser;
 
-    @Autowired
-    private PersisterFactory persisterFactory;
+	@Autowired
+	private PersisterFactory persisterFactory;
 
-    @RequestMapping(value = "/import", method = RequestMethod.POST)
-    public RedirectView process(@RequestParam("file") MultipartFile file) {
-        try {
-            String localFilename = System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename();
-            File localFile = new File(localFilename);
-            file.transferTo(localFile);
-            DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(localFile);
+	@RequestMapping(value = "/import", method = RequestMethod.POST)
+	public RedirectView process(@RequestParam("file") MultipartFile file) {
+		try {
+			String localFilename = System.getProperty("java.io.tmpdir") + "/"
+					+ file.getOriginalFilename();
+			File localFile = new File(localFilename);
+			file.transferTo(localFile);
+			DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(
+					localFile);
 
-            // Prepare the output file for headers
-            ProfilePersister persister = initPersister(file.getOriginalFilename());
+			// Prepare the output file for headers
+			ProfilePersister persister = initPersister(file
+					.getOriginalFilename());
 
-            while (namesInput.hasNext()) {
-                PersonWthAddress person = (PersonWthAddress) namesInput.next(PersonWthAddress.class);
-                logger.debug(String.format("Processing %s", person.fullName()));
+			while (namesInput.hasNext()) {
+				PersonWthAddress person = (PersonWthAddress) namesInput
+						.next(PersonWthAddress.class);
+				logger.debug(String.format("Processing %s", person.fullName()));
 
-                // First write the initial values
-                persister.persistPartial(person, "");
+				// First write the initial values
+				persister.persistPartial(person, "");
 
-                for (ServiceProviders sp : ServiceProviders.values()) {
-                    SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-                    if (spAccess.isSelected()) {
-                        logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
-                        List<? extends Object> matches = spAccess.getMatches(person);
-                        logger.debug(String.format("Found %s matches", matches.size()));
-                        // Stores count and then the first element in list (best data considered)
-                        persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP()
-                                .toString() + "_count");
-                        if (matches.size() >= 1)
-                            persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
+				for (ServiceProviders sp : ServiceProviders.values()) {
+					SPConnectionRetriever spAccess = spResolver
+							.getSPConnection(sp);
+					if (spAccess.isSelected()) {
+						logger.debug(String.format("Starting %s lookup",
+								spAccess.getActiveSP().toString()));
+						List<? extends Object> matches = spAccess
+								.getMatches(person);
+						logger.debug(String.format("Found %s matches",
+								matches.size()));
+						// Stores count and then the first element in list (best
+						// data considered)
+						persister.persistPartialOneValue(
+								String.format("%s", matches.size()), spAccess
+										.getActiveSP().toString() + "_count");
+						if (matches.size() >= 1)
+							persister.persistPartial(matches.get(0), spAccess
+									.getActiveSP().toString() + "_");
 
-                    }
-                }
+					}
+				}
 
-                // For this name, all data has been extracted, flush the result to outputfile
-                persister.flush();
-            }
+				// For this name, all data has been extracted, flush the result
+				// to outputfile
+				persister.flush();
+			}
 
-            // All names have been processed, close the output
-            persister.close();
+			// All names have been processed, close the output
+			persister.close();
 
-        } catch (IOException e) {
-            logger.error(String.format("Access Error to file %s", file.getOriginalFilename()), e);
-        } catch (SpInfoRetrievingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+		} catch (IOException e) {
+			logger.error(
+					String.format("Access Error to file %s",
+							file.getOriginalFilename()), e);
+		} catch (SpInfoRetrievingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-        return new RedirectView("/");
-    }
-    
-    /**
-     * For all selected service providers, persist the connections on this service provider in a file
-     * @return
-     */
-    @RequestMapping(value = Uris.PERSIST, method = RequestMethod.POST)
-    public RedirectView persistConnections() {
-    	
-    	  for (ServiceProviders sp : ServiceProviders.values()) {
-              SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-              if (spAccess.isSelected()) {
-            	  
-            	  try { 
-            	  // get the connections
-            	  List<? extends Object> connections;
+		return new RedirectView("/");
+	}
+
+	/**
+	 * For all selected service providers, persist the connections on this
+	 * service provider in a file
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
+	public RedirectView persistConnections() {
+
+		logger.debug(String.format("Persisting connections for id : %s",
+				currentUser.getId()));
+
+		for (ServiceProviders sp : ServiceProviders.values()) {
+			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+			if (spAccess.isSelected()) {
 				
+				logger.debug(String.format("getting connections for %s", sp.name()));
+
+				try {
+					// get the connections
+					List<? extends Object> connections;
+
 					connections = spAccess.getConnectionsasProfiles();
-				  
-            	  // init the persister
-            	  if (connections != null) {
-            		  ProfilePersister persister = persisterFactory.create(sp.name()+currentUser.getId());
-            		  persister.setTypeToRecord(spAccess.getSPType(), "");
-            	 
-            	  
-            	  // persist all connections
-            		for (Object connection : connections)  {
-            			persister.persist(connection);
-            		}
-            		
-            		persister.close();
-            	  }
-            		} catch (SpInfoRetrievingException | IOException e) {
-    					logger.error(String.format("Error persisting %s connections for %s : %s", sp.name(), currentUser.getId(), e.getMessage()));
-    					logger.error("Root cause : " + e.getCause().getMessage());
-    				}
-                	
-              }
-    	  }
-    	  
-    	  return new RedirectView("/");
-    }
 
-    @SuppressWarnings("unchecked")
-    private ProfilePersister initPersister(String fileName) {
+					// init the persister
+					if (connections != null) {
+						ProfilePersister persister = persisterFactory.create(sp
+								.name() + currentUser.getId());
+						persister.setTypeToRecord(spAccess.getSPType(), "");
 
-        // Set the PersonWithAdrress fields to be listed first
-        ProfilePersister toReturn = persisterFactory.create(fileName + "enriched");
-        toReturn.setTypeToRecord(PersonWthAddress.class, "", pwaFields);
+						// persist all connections
+						for (Object connection : connections) {
+							persister.persist(connection);
+						}
 
-        // Add count and information fields for all selected sps.
-        for (ServiceProviders sp : ServiceProviders.values()) {
-            SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
-            if (spAccess.isSelected()) {
-                toReturn.setFieldToRecord(spAccess.getActiveSP().toString() + "_count");
-                toReturn.setTypeToRecord(spAccess.getSPType(), spAccess.getActiveSP().toString() + "_");
+						persister.close();
+						logger.debug(String.format("Successfully persisted %s connections", connections.size()));
+					}
+					else
+						logger.debug("No connections found, nothing to persist");
+				} catch (SpInfoRetrievingException | IOException e) {
+					logger.error(String.format(
+							"Error persisting %s connections for %s : %s",
+							sp.name(), currentUser.getId(), e.getMessage()));
+					logger.error("Root cause : " + e.getCause().getMessage());
+				}
 
-            }
-        }
-        return toReturn;
+			}
+		}
 
-    }
+		return new RedirectView("/");
+	}
+
+	@SuppressWarnings("unchecked")
+	private ProfilePersister initPersister(String fileName) {
+
+		// Set the PersonWithAdrress fields to be listed first
+		ProfilePersister toReturn = persisterFactory.create(fileName
+				+ "enriched");
+		toReturn.setTypeToRecord(PersonWthAddress.class, "", pwaFields);
+
+		// Add count and information fields for all selected sps.
+		for (ServiceProviders sp : ServiceProviders.values()) {
+			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+			if (spAccess.isSelected()) {
+				toReturn.setFieldToRecord(spAccess.getActiveSP().toString()
+						+ "_count");
+				toReturn.setTypeToRecord(spAccess.getSPType(), spAccess
+						.getActiveSP().toString() + "_");
+
+			}
+		}
+		return toReturn;
+
+	}
 }

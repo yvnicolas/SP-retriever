@@ -58,7 +58,13 @@ public class FBConnectionRetrieverImpl extends
 		// TODO : comprendre le fonctionnement des paged list
 		PagedList <FacebookProfile> toReturn=null;
 		if (facebook != null) {
+			try {
 			toReturn = facebook.friendOperations().getFriendProfiles();
+			}
+			catch (Exception e) {
+				logger.error(String.format("Error retrieving facebook Connection : %s", e.getMessage()));
+				logger.error(String.format("Root cause : %s", e.getCause().getMessage()));
+			}
 			
 		}
 		return toReturn;

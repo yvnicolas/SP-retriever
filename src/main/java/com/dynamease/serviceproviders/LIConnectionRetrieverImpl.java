@@ -48,10 +48,21 @@ public class LIConnectionRetrieverImpl extends
 
 	@Override
 	protected List<LinkedInProfile> getConnectionsasProfilesSpecific() {
-		if (!linkedIn.isAuthorized()) {
-			return null;
+		List<LinkedInProfile> toReturn = null;
+
+		if (linkedIn.isAuthorized()) {
+			try {
+				toReturn = linkedIn.connectionOperations().getConnections();
+			} catch (Exception e) {
+				logger.error(String.format(
+						"Error retrieving linkedin Connection : %s",
+						e.getMessage()));
+				logger.error(String.format("Root cause : %s", e.getCause()
+						.getMessage()));
+			}
 		}
-		return linkedIn.connectionOperations().getConnections();
+
+		return toReturn;
 	}
 
 	@Override
@@ -103,5 +114,4 @@ public class LIConnectionRetrieverImpl extends
 
 	}
 
-	
 }
