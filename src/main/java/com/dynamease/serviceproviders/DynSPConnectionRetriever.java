@@ -75,6 +75,16 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 
     public abstract List<PersonBasic> getConnections() throws SpInfoRetrievingException;
     
+    protected abstract List<T> getConnectionsasProfilesSpecific() ;
+    
+    public List<T> getConnectionsasProfiles() throws SpInfoRetrievingException {
+        if (!this.isconnected()) {
+            throw new SpInfoRetrievingException(String.format("Can not get matches if not connected to service Provider %s", this.getActiveSP().toString()));
+        }
+        
+        return this.getConnectionsasProfilesSpecific();
+    }
+    
     //helper classes for comparaison and filtering
     class  Checker  implements Predicate<T>  {
         private PersonBasic person;

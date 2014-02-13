@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.log4j.pattern.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import com.dynamease.addressbooks.PersisterFactory;
 import com.dynamease.addressbooks.ProfilePersister;
 import com.dynamease.addressbooks.impl.BasicAddrBookCsvImpl;
 import com.dynamease.entities.PersonWthAddress;
+import com.dynamease.serviceproviders.config.Uris;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 
 @Controller
@@ -86,6 +88,47 @@ public class FileProcessingController {
         }
 
         return new RedirectView("/");
+    }
+    
+    /**
+     * For all selected service providers, persist the connections on this service provider in a file
+     * @return
+     */
+    @RequestMapping(value = Uris.PERSIST, method = RequestMethod.POST)
+    public RedirectView persistConnections() {
+    	
+    	  for (ServiceProviders sp : ServiceProviders.values()) {
+              SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+              if (spAccess.isSelected()) {
+            	  
+            	  try { 
+            	  // get the connections
+            	  List<? extends Object> connections;
+				
+					connections = spAccess.getConnectionsasProfiles();
+				  
+            	  // init the persister
+            	  if (connections != null) {
+            		  ProfilePersister persister = persisterFactory.create(sp.name()+currentUser.getId());
+            		  persister.setTypeToRecord(spAccess.getSPType(), "");
+            	 
+            	  
+            	  // persist all connections
+            		for (Object connection : connections)  {
+            			persister.persist(connection);
+            		}
+            		
+            		persister.close();
+            	  }
+            		} catch (SpInfoRetrievingException | IOException e) {
+    					logger.error(String.format("Error persisting %s connections for %s : %s", sp.name(), currentUser.getId(), e.getMessage()));
+    					logger.error("Root cause : " + e.getCause().getMessage());
+    				}
+                	
+              }
+    	  }
+    	  
+    	  return new RedirectView("/");
     }
 
     @SuppressWarnings("unchecked")

@@ -22,6 +22,8 @@ public final class Uris {
 	
 	public static final String FILEUPLOAD = "/FileUploadForm";
 	
+	public static final String PERSIST = "/persistConnections";
+	
 
 	//Application Connection Dance Prefix
 	public static final String APPCONNECTPREFIX="/appconnect";

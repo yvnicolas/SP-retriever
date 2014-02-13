@@ -74,7 +74,7 @@
 
     </form>
         <br>
-    <form action="<c:url value="<%=Uris.BYE%>" />" method="GET">
+    <form action="<c:url value="<%=Uris.PERSIST%>" />" method="GET">
         <button type="submit">Enregistrer mes contacts</button>
     </form>
 </body>

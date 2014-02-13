@@ -100,5 +100,11 @@ public class ViadeoConnectionRetrieverImpl extends DynSPConnectionRetriever<Copa
     	return new ArrayList<>();
     }
 
+	@Override
+	protected List<CopainsDAvantProfile> getConnectionsasProfilesSpecific() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

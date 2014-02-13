@@ -63,9 +63,16 @@ public class CpainsConnectionRetriever extends DynSPConnectionRetriever<CopainsD
      */
     @Override
     public List<PersonBasic> getConnections() throws SpInfoRetrievingException {
-        // TODO Auto-generated method stub
+        // Method not relevant for this SP, no connection concept
         return null;
     }
+
+
+	@Override
+	protected List<CopainsDAvantProfile> getConnectionsasProfilesSpecific() {
+		// Method not relevant for this SP, no connection concept
+		return null;
+	}
 
     /*
      * (non-Javadoc)

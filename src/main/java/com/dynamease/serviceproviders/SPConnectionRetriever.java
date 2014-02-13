@@ -14,6 +14,8 @@ public interface SPConnectionRetriever{
 
     public List<PersonBasic> getConnections() throws SpInfoRetrievingException;
     
+    public List<? extends Object> getConnectionsasProfiles() throws SpInfoRetrievingException;
+    
     public ServiceProviders getActiveSP();
     
     @SuppressWarnings("rawtypes")
