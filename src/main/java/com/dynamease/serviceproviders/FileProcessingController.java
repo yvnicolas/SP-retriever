@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.log4j.pattern.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.addressbooks.DynExternalAddressBookBasic;
@@ -44,6 +42,7 @@ public class FileProcessingController {
 
 	@RequestMapping(value = "/import", method = RequestMethod.POST)
 	public RedirectView process(@RequestParam("file") MultipartFile file) {
+		ProfilePersister persister = null;
 		try {
 			String localFilename = System.getProperty("java.io.tmpdir") + "/"
 					+ file.getOriginalFilename();
@@ -53,8 +52,7 @@ public class FileProcessingController {
 					localFile);
 
 			// Prepare the output file for headers
-			ProfilePersister persister = initPersister(file
-					.getOriginalFilename());
+			persister = initPersister(file.getOriginalFilename());
 
 			while (namesInput.hasNext()) {
 				PersonWthAddress person = (PersonWthAddress) namesInput
@@ -70,19 +68,29 @@ public class FileProcessingController {
 					if (spAccess.isSelected()) {
 						logger.debug(String.format("Starting %s lookup",
 								spAccess.getActiveSP().toString()));
-						List<? extends Object> matches = spAccess
-								.getMatches(person);
-						logger.debug(String.format("Found %s matches",
-								matches.size()));
-						// Stores count and then the first element in list (best
-						// data considered)
-						persister.persistPartialOneValue(
-								String.format("%s", matches.size()), spAccess
-										.getActiveSP().toString() + "_count");
-						if (matches.size() >= 1)
-							persister.persistPartial(matches.get(0), spAccess
-									.getActiveSP().toString() + "_");
+						List<? extends Object> matches;
+						try {
+							matches = spAccess.getMatches(person);
 
+							logger.debug(String.format("Found " + "%s matches",
+									matches.size()));
+							// Stores count and then the first element in list
+							// (best
+							// data considered)
+							persister.persistPartialOneValue(
+									String.format("%s", matches.size()),
+									spAccess.getActiveSP().toString()
+											+ "_count");
+							if (matches.size() >= 1)
+								persister
+										.persistPartial(matches.get(0),
+												spAccess.getActiveSP()
+														.toString() + "_");
+						} catch (Exception e) {
+							logger.error(String.format(
+									"Error accessing service provider : %s",
+									e.getMessage()));
+						}
 					}
 				}
 
@@ -92,15 +100,25 @@ public class FileProcessingController {
 			}
 
 			// All names have been processed, close the output
-			persister.close();
 
 		} catch (IOException e) {
 			logger.error(
 					String.format("Access Error to file %s",
 							file.getOriginalFilename()), e);
-		} catch (SpInfoRetrievingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		}
+
+		finally {
+			if (persister != null)
+				try {
+					persister.close();
+				} catch (IOException e) {
+					logger.error(
+							String.format("IO Exception trying to close persister : %s"),
+							e.getMessage());
+					logger.error(String.format("Cause : %s", e.getCause()
+							.getMessage()));
+				}
 		}
 
 		return new RedirectView("/");
@@ -121,36 +139,59 @@ public class FileProcessingController {
 		for (ServiceProviders sp : ServiceProviders.values()) {
 			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
 			if (spAccess.isSelected()) {
-				
-				logger.debug(String.format("getting connections for %s", sp.name()));
+
+				logger.debug(String.format("getting connections for %s",
+						sp.name()));
+
+				ProfilePersister persister = null;
 
 				try {
 					// get the connections
 					List<? extends Object> connections;
 
-					connections = spAccess.getConnectionsasProfiles();
+					try {
+						connections = spAccess.getConnectionsasProfiles();
 
-					// init the persister
-					if (connections != null) {
-						ProfilePersister persister = persisterFactory.create(sp
-								.name() + currentUser.getId());
-						persister.setTypeToRecord(spAccess.getSPType(), "");
+						// init the persister
+						if (connections != null) {
+							persister = persisterFactory.create(sp.name()
+									+ currentUser.getId());
+							persister.setTypeToRecord(spAccess.getSPType(), "");
 
-						// persist all connections
-						for (Object connection : connections) {
-							persister.persist(connection);
-						}
+							// persist all connections
+							for (Object connection : connections) {
+								persister.persist(connection);
+							}
 
-						persister.close();
-						logger.debug(String.format("Successfully persisted %s connections", connections.size()));
+							persister.close();
+							logger.debug(String.format(
+									"Successfully persisted %s connections",
+									connections.size()));
+						} else
+							logger.debug("No connections found, nothing to persist");
+					} catch (SpInfoRetrievingException e) {
+						logger.error(String.format(
+								"Cannot get connections : %s", e.getMessage()));
+						logger.error("Root cause : "
+								+ e.getCause().getMessage());
 					}
-					else
-						logger.debug("No connections found, nothing to persist");
-				} catch (SpInfoRetrievingException | IOException e) {
+
+				} catch (IOException e) {
 					logger.error(String.format(
 							"Error persisting %s connections for %s : %s",
 							sp.name(), currentUser.getId(), e.getMessage()));
 					logger.error("Root cause : " + e.getCause().getMessage());
+				} finally {
+					if (persister != null)
+						try {
+							persister.close();
+						} catch (IOException e) {
+							logger.error(
+									String.format("IO Exception trying to close persister : %s"),
+									e.getMessage());
+							logger.error(String.format("Cause : %s", e
+									.getCause().getMessage()));
+						}
 				}
 
 			}

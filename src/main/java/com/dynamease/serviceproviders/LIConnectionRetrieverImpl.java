@@ -57,9 +57,7 @@ public class LIConnectionRetrieverImpl extends
 				logger.error(String.format(
 						"Error retrieving linkedin Connection : %s",
 						e.getMessage()));
-				logger.error(String.format("Root cause : %s", e.getCause()
-						.getMessage()));
-			}
+							}
 		}
 
 		return toReturn;
@@ -74,7 +72,7 @@ public class LIConnectionRetrieverImpl extends
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Class getSPType() {
-		return LinkedIn.class;
+		return LinkedInProfile.class;
 	}
 
 	@Override

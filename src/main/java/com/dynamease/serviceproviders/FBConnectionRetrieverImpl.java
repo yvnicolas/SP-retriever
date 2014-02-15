@@ -79,7 +79,7 @@ public class FBConnectionRetrieverImpl extends
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Class getSPType() {
-		return Facebook.class;
+		return FacebookProfile.class;
 	}
 
 	@Override

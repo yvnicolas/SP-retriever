@@ -34,6 +34,7 @@ public class CSVProfilePersisterImpl implements ProfilePersister {
     private boolean writingBegan = false;
 
     public CSVProfilePersisterImpl(String filePath) throws IOException {
+    	logger.debug(String.format("CSV profile persister creation for file %s", filePath));
         this.mapWriter = new CsvMapWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE);
     }
 
@@ -90,7 +91,7 @@ public class CSVProfilePersisterImpl implements ProfilePersister {
     // logger.info(String.format("Element %d du header :  %s", i, this.csvHeader[i]));
     // }
     //
-    // // write Header
+    // // write Header<
     // mapWriter.writeHeader(this.csvHeader);
     //
     // }
@@ -100,6 +101,12 @@ public class CSVProfilePersisterImpl implements ProfilePersister {
         // write Header
 
         mapWriter.writeHeader(this.csvHeader);
+        if (logger.isDebugEnabled()) {
+        	logger.debug(String.format("Initiating writing on CSV Profile persister for header:"));
+        	for (int i = 0; i < csvHeader.length; i++) {
+        		logger.debug(String.format("Header %s : %s", i, csvHeader[i]));
+        	}
+        }
         this.writingBegan = true;
 
     }
@@ -179,9 +186,9 @@ public class CSVProfilePersisterImpl implements ProfilePersister {
                     partialBeingWritten.put(csvHeader[i], value);
                 } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                         | InvocationTargetException e) {
-                    logger.error(
-                            String.format("Error invoking method %s on %s: %s", methodName, profile.toString(),
-                                    e.getMessage()));
+//                    logger.error(
+//                            String.format("Error invoking method %s on %s: %s", methodName, profile.toString(),
+//                                    e.getMessage()));
                 }
             }
         }
