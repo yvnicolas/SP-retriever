@@ -46,9 +46,9 @@ import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.NetworkUpdateOperations;
 import org.springframework.social.linkedin.api.ProfileOperations;
 import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
-//import org.springframework.social.viadeo.api.Viadeo;
-//import org.springframework.social.viadeo.api.impl.ViadeoTemplate;
-//import org.springframework.social.viadeo.connect.ViadeoConnectionFactory;
+import org.springframework.social.viadeo.api.Viadeo;
+import org.springframework.social.viadeo.api.impl.ViadeoTemplate;
+import org.springframework.social.viadeo.connect.ViadeoConnectionFactory;
 import org.springframework.web.client.RestOperations;
 
 import com.dynamease.serviceproviders.DynProfilePrinter;
@@ -87,8 +87,8 @@ public class SocialConfig {
                 environment.getProperty("facebook.clientSecret")));
         registry.addConnectionFactory(new LinkedInConnectionFactory(environment.getProperty("linkedin.consumerKey"),
                 environment.getProperty("linkedin.consumerSecret")));
-//        registry.addConnectionFactory(new ViadeoConnectionFactory(environment.getProperty("viadeo.consumerKey"),
-//                environment.getProperty("viadeo.consumerSecret")));
+        registry.addConnectionFactory(new ViadeoConnectionFactory(environment.getProperty("viadeo.consumerKey"),
+                environment.getProperty("viadeo.consumerSecret")));
         logger.debug(String.format("Connexion Factory Locator Creation"));
         return registry;
     }
@@ -152,18 +152,18 @@ public class SocialConfig {
      * @throws NotConnectedException
      *             if the user is not connected to facebook.
      */
-//    @Bean
-//    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
-//    public Viadeo viadeo() {
-//        Viadeo toReturn = null;
-//        try {
-//            toReturn = connectionRepository().getPrimaryConnection(Viadeo.class).getApi();
-//        }
-//        catch (NotConnectedException e){
-//            toReturn = new ViadeoTemplate();
-//        }
-//        return toReturn;
-//    }
+    @Bean
+    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
+    public Viadeo viadeo() {
+        Viadeo toReturn = null;
+        try {
+            toReturn = connectionRepository().getPrimaryConnection(Viadeo.class).getApi();
+        }
+        catch (NotConnectedException e){
+            toReturn = new ViadeoTemplate();
+        }
+        return toReturn;
+    }
 
     /**
      * A proxy to a request-scoped object representing the current user's primary LinkedIn account.
