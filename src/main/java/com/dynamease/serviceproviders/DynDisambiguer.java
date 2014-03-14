@@ -81,7 +81,7 @@ public class DynDisambiguer {
         return 1;
     }
     
-    public int rate (PersonWthAddress refPerson, PersonWthAddress contact) {
+    public int rateWthAddress (PersonWthAddress refPerson, PersonWthAddress contact) {
     	int result = 0;
     	if (stringMatch(refPerson.getFirstName(), contact.getFirstName()))
     		result++;

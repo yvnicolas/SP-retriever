@@ -2,6 +2,7 @@ package com.dynamease.serviceproviders;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.LinkedInternetProfile;
 
 import org.jsoup.Jsoup;
@@ -152,5 +154,13 @@ public class LinkedInternetConnectionRetriever extends DynSPConnectionRetriever<
 			return null;
 		}
 	}
+
+	@Override
+    PersonWthAddress mapProfile(LinkedInternetProfile profile) {
+	    PersonWthAddress toReturn = new PersonWthAddress(profile.getFirstName(), profile.getLastName());
+	    toReturn.setCity(profile.getLocation());
+	    return toReturn;
+    }
+
 
 }

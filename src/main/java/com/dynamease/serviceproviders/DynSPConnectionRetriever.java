@@ -40,7 +40,7 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
         PRINTER = pRINTER;
     }
 
-    private DynDisambiguer dynDisambiguer;
+    DynDisambiguer dynDisambiguer;
 
     
     public DynDisambiguer getDynDisambiguer() {
@@ -111,26 +111,26 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
         
     }
     
-//    class ProfileComparator implements Comparator<T> {
-//        private PersonWthAddress person;
-//        
-//        public ProfileComparator(PersonWthAddress person) {
-//            this.person = person;
-//        }
-//
-//        @Override
-//        public int compare(T o1, T o2) {
-//            return dynDisambiguer.rate(person, o2) - dynDisambiguer.rate(person, o1);
-//        }
-//        
-//    }
+    class ProfileComparator implements Comparator<T> {
+        private PersonWthAddress person;
+        
+        public ProfileComparator(PersonWthAddress person) {
+            this.person = person;
+        }
+
+        @Override
+        public int compare(T o1, T o2) {
+            return dynDisambiguer.rateWthAddress(person, mapProfile(o2)) - dynDisambiguer.rateWthAddress(person, mapProfile(o1));
+        }
+        
+    }
     
     /**
-     * Delegates to the below class knowing the profile the function that actually compares 2 different profiles.
+     * gets the translation
      * @param person
      * @return
      */
-    abstract Comparator<T> profileFineComparator(PersonWthAddress person);
+    abstract PersonWthAddress mapProfile(T profile);
 
     /**
      * Meant to retrieve information on a person from a service provider connection Returns info as
@@ -153,7 +153,7 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
         List<T> queryResponse = this.getMatchesAsProfiles(person);
         Collection<T> onlyNameMatches = Collections2.filter(queryResponse, checker);
         List<T> toReturn = new ArrayList<>(onlyNameMatches);
-        Collections.sort(toReturn, profileFineComparator((PersonWthAddress) person));
+        Collections.sort(toReturn, profComparator);
         return toReturn;
     }
 
