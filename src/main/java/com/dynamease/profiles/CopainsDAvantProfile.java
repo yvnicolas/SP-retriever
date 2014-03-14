@@ -1,4 +1,4 @@
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 public class CopainsDAvantProfile {
 

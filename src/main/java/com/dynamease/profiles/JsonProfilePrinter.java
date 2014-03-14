@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

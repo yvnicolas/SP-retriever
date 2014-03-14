@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.LinkedInternetProfile;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

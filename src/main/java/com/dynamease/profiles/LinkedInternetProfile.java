@@ -1,4 +1,4 @@
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 /**
  * A Profile Class to retrieve information from public Linked In profile search on the internet.

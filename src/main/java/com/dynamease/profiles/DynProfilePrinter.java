@@ -1,9 +1,9 @@
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.dynamease.serviceproviders.ProfilePrinter;
+import com.dynamease.profiles.ProfilePrinter;
 
 /**
  * 

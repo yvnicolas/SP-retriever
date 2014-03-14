@@ -17,8 +17,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.dynamease.entities.PersonWthAddress;
-import com.dynamease.serviceproviders.DynProfilePrinter;
-import com.dynamease.serviceproviders.ProfilePrinter;
+import com.dynamease.profiles.DynProfilePrinter;
+import com.dynamease.profiles.ProfilePrinter;
 
 
 

@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.SpInfoPerson;
 import com.dynamease.serviceproviders.config.Uris;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 

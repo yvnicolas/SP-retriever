@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.CopainsDAvantProfile;
 
 /**
  * A retriever for french social network "Copains d'avant"

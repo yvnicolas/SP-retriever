@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.DynProfilePrinter;
+import com.dynamease.profiles.LinkedInternetProfile;
+import com.dynamease.profiles.ProfilePrinter;
 
 public class LinkedInternetConnectionRetrieverTest {
 	private static final Logger logger = LoggerFactory.getLogger(LinkedInternetConnectionRetriever.class);

@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.DynProfilePrinter;
+import com.dynamease.profiles.SpInfoPerson;
 import com.dynamease.serviceproviders.CpainsConnectionRetriever.CPPersonComparator;
 
 

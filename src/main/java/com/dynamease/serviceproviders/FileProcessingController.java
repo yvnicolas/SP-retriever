@@ -57,7 +57,7 @@ public class FileProcessingController {
 			while (namesInput.hasNext()) {
 				PersonWthAddress person = (PersonWthAddress) namesInput
 						.next(PersonWthAddress.class);
-				logger.debug(String.format("Processing %s", person.fullName()));
+				logger.debug(String.format("Processing %s - %s - %s - %s", person.fullName(), person.getAddress(), person.getZip(), person.getPhone()));
 
 				// First write the initial values
 				persister.persistPartial(person, "");

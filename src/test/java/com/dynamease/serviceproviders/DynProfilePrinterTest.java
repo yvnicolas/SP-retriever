@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.springframework.social.facebook.api.FacebookProfile;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.DynProfilePrinter;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 

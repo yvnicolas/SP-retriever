@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 /**
  * Interface for pretty printing profile information

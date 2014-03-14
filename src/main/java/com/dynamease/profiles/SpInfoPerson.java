@@ -1,9 +1,10 @@
 /**
  * 
  */
-package com.dynamease.serviceproviders;
+package com.dynamease.profiles;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.serviceproviders.ServiceProviders;
 
 /**
  * An entity to store information retrieved on a person from a service provider connection.

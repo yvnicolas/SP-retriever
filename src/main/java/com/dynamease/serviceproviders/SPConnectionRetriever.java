@@ -3,6 +3,7 @@ package com.dynamease.serviceproviders;
 import java.util.List;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.profiles.SpInfoPerson;
 
 /**
  * An interface to retrive information from a service provider

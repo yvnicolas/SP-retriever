@@ -6,9 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
+import com.dynamease.profiles.ProfilePrinter;
+import com.dynamease.profiles.SpInfoPerson;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
@@ -20,6 +25,8 @@ import com.google.common.collect.Collections2;
  * 
  */
 public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriever{
+
+	private static final Logger logger = LoggerFactory.getLogger(DynSPConnectionRetriever.class);
 
     
     private ProfilePrinter PRINTER;
@@ -104,19 +111,26 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
         
     }
     
-    class ProfileComparator implements Comparator<T> {
-        private PersonBasic person;
-        
-        public ProfileComparator(PersonBasic person) {
-            this.person = person;
-        }
-
-        @Override
-        public int compare(T o1, T o2) {
-            return dynDisambiguer.rate(person, o2) - dynDisambiguer.rate(person, o1);
-        }
-        
-    }
+//    class ProfileComparator implements Comparator<T> {
+//        private PersonWthAddress person;
+//        
+//        public ProfileComparator(PersonWthAddress person) {
+//            this.person = person;
+//        }
+//
+//        @Override
+//        public int compare(T o1, T o2) {
+//            return dynDisambiguer.rate(person, o2) - dynDisambiguer.rate(person, o1);
+//        }
+//        
+//    }
+    
+    /**
+     * Delegates to the below class knowing the profile the function that actually compares 2 different profiles.
+     * @param person
+     * @return
+     */
+    abstract Comparator<T> profileFineComparator(PersonWthAddress person);
 
     /**
      * Meant to retrieve information on a person from a service provider connection Returns info as
@@ -134,12 +148,12 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
         }
         
         Checker checker = new Checker(person);
-        ProfileComparator profComparator = new ProfileComparator(person);
+        ProfileComparator profComparator = new ProfileComparator((PersonWthAddress) person);
       
         List<T> queryResponse = this.getMatchesAsProfiles(person);
         Collection<T> onlyNameMatches = Collections2.filter(queryResponse, checker);
         List<T> toReturn = new ArrayList<>(onlyNameMatches);
-        Collections.sort(toReturn, profComparator);
+        Collections.sort(toReturn, profileFineComparator((PersonWthAddress) person));
         return toReturn;
     }
 

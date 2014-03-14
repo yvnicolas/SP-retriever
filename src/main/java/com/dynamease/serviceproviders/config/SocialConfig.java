@@ -51,10 +51,10 @@ import org.springframework.social.viadeo.api.impl.ViadeoTemplate;
 import org.springframework.social.viadeo.connect.ViadeoConnectionFactory;
 import org.springframework.web.client.RestOperations;
 
-import com.dynamease.serviceproviders.DynProfilePrinter;
+import com.dynamease.profiles.DynProfilePrinter;
+import com.dynamease.profiles.ProfilePrinter;
 import com.dynamease.serviceproviders.HtmlDocRetriever;
 import com.dynamease.serviceproviders.HtmlDocRetrieverConnectedImpl;
-import com.dynamease.serviceproviders.ProfilePrinter;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 import com.dynamease.serviceproviders.user.CurrentUserContextImpl;
 
