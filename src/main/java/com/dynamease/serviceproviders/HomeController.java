@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.SpInfoPerson;
 import com.dynamease.serviceproviders.config.Uris;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
@@ -139,7 +140,7 @@ public class HomeController {
             if (spAccess.isSelected()) {
                 SpNameSearch thisSp = new SpNameSearch(new SPInfo(sp.toString()).update(spAccess));
                 try {
-                    thisSp.setListInfo(spAccess.getPersonInfo(new PersonBasic(first, last)));
+                    thisSp.setListInfo(spAccess.getPersonInfo(new PersonWthAddress(first, last)));
                 } catch (SpInfoRetrievingException e) {
                     logger.warn(String.format("Not able to retrieve %s info for %s %s : %s", sp.toString(), first,
                             last, e.getMessage()));

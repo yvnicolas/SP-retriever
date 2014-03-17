@@ -15,7 +15,9 @@
  */
 package com.dynamease.serviceproviders.config;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -75,7 +77,9 @@ public class MainConfig {
            
             ProfilePersister toReturn = null;
             try {
-                toReturn = new CSVProfilePersisterImpl(System.getProperty("java.io.tmpdir") + "/"+name);
+//            	String repname = String.format("%s/spresults%s",System.getProperty("java.io.tmpdir"), new Date().getTime());
+//            	new File(repname).mkdir();
+                toReturn = new CSVProfilePersisterImpl(System.getProperty("user.home") + "/Public/"+name);
             } catch (IOException e) {
                
                 logger.error(String.format("Unable to create Profile persister for name %s : %s", name, e.getMessage()),e);

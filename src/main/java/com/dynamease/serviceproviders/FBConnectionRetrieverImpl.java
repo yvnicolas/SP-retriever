@@ -13,6 +13,7 @@ import org.springframework.social.facebook.api.Reference;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("FBConnectionRetriever")
@@ -129,5 +130,18 @@ public class FBConnectionRetrieverImpl extends
 				toReturn.size(), person.fullName()));
 		return toReturn;
 	}
+
+	@Override
+    PersonWthAddress mapProfile(FacebookProfile profile) {
+		PersonWthAddress toReturn = new PersonWthAddress();
+		try {
+			toReturn.setFirstName(profile.getFirstName());
+			toReturn.setLastName(profile.getLastName());
+			toReturn.setCity(profile.getLocation().getName());
+		}
+		catch (NullPointerException e) {}
+	
+		return toReturn;
+    }
 
 }

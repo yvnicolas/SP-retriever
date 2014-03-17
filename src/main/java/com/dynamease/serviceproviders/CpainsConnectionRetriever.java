@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.CopainsDAvantProfile;
 
 /**
@@ -507,6 +508,13 @@ public class CpainsConnectionRetriever extends DynSPConnectionRetriever<CopainsD
         }
   
         return toReturn;
+    }
+
+	@Override
+    PersonWthAddress mapProfile(CopainsDAvantProfile profile) {
+		PersonWthAddress toReturn = new PersonWthAddress(profile.getFirstName(), profile.getLastName());
+		toReturn.setCity(profile.getCity());
+	    return toReturn;
     }
 
     

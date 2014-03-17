@@ -11,6 +11,7 @@ import org.springframework.social.viadeo.api.ViadeoProfile;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("ViadeoConnectionRetriever")
@@ -105,6 +106,12 @@ public class ViadeoConnectionRetrieverImpl extends DynSPConnectionRetriever<Viad
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+    PersonWthAddress mapProfile(ViadeoProfile profile) {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
 
 
 }

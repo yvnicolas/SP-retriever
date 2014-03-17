@@ -3,6 +3,7 @@ package com.dynamease.serviceproviders;
 import java.util.List;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.SpInfoPerson;
 
 /**
@@ -37,9 +38,9 @@ public interface SPConnectionRetriever{
      * @return
      * @throws SpInfoRetrievingException 
      */
-    public List<SpInfoPerson> getPersonInfo(PersonBasic person) throws SpInfoRetrievingException;
+    public List<SpInfoPerson> getPersonInfo(PersonWthAddress person) throws SpInfoRetrievingException;
     
-    public List<? extends Object> getMatches(PersonBasic person) throws SpInfoRetrievingException;
+    public List<? extends Object> getMatches(PersonWthAddress person) throws SpInfoRetrievingException;
     
     
     public boolean isSelected();

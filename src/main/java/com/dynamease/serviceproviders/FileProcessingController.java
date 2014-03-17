@@ -25,11 +25,9 @@ import com.dynamease.serviceproviders.user.CurrentUserContext;
 @Controller
 public class FileProcessingController {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(FileProcessingController.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileProcessingController.class);
 
-	private static final String[] pwaFields = { "FirstName", "LastName",
-			"Phone", "Address", "Zip", "City" };
+	private static final String[] pwaFields = { "FirstName", "LastName", "Phone", "Address", "Zip", "City" };
 
 	@Autowired
 	private SPResolver spResolver;
@@ -44,52 +42,45 @@ public class FileProcessingController {
 	public RedirectView process(@RequestParam("file") MultipartFile file) {
 		ProfilePersister persister = null;
 		try {
-			String localFilename = System.getProperty("java.io.tmpdir") + "/"
-					+ file.getOriginalFilename();
+			String localFilename = System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename();
 			File localFile = new File(localFilename);
 			file.transferTo(localFile);
-			DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(
-					localFile);
+			DynExternalAddressBookBasic namesInput = new BasicAddrBookCsvImpl(localFile);
 
 			// Prepare the output file for headers
 			persister = initPersister(file.getOriginalFilename());
 
 			while (namesInput.hasNext()) {
-				PersonWthAddress person = (PersonWthAddress) namesInput
-						.next(PersonWthAddress.class);
-				logger.debug(String.format("Processing %s - %s - %s - %s", person.fullName(), person.getAddress(), person.getZip(), person.getPhone()));
+				PersonWthAddress person = (PersonWthAddress) namesInput.next(PersonWthAddress.class);
+				logger.debug(String.format("Processing %s - %s - %s - %s - %s", person.fullName(), person.getAddress(), person.getZip(),
+				        person.getCity(), person.getPhone()));
 
 				// First write the initial values
 				persister.persistPartial(person, "");
 
 				for (ServiceProviders sp : ServiceProviders.values()) {
-					SPConnectionRetriever spAccess = spResolver
-							.getSPConnection(sp);
+					SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
 					if (spAccess.isSelected()) {
-						logger.debug(String.format("Starting %s lookup",
-								spAccess.getActiveSP().toString()));
+						logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
 						List<? extends Object> matches;
 						try {
 							matches = spAccess.getMatches(person);
 
-							logger.debug(String.format("Found " + "%s matches",
-									matches.size()));
+							logger.debug(String.format("Found " + "%s matches", matches.size()));
 							// Stores count and then the first element in list
 							// (best
 							// data considered)
-							persister.persistPartialOneValue(
-									String.format("%s", matches.size()),
-									spAccess.getActiveSP().toString()
-											+ "_count");
-							if (matches.size() >= 1)
-								persister
-										.persistPartial(matches.get(0),
-												spAccess.getActiveSP()
-														.toString() + "_");
+							persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_count");
+							if (matches.size() >= 1) {
+								persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
+
+								// TODO : rajouter ici une persistence pour si
+								// plusieurs match sur noms et SP
+								if (matches.size() > 1)
+									persistSeveralMatches(spAccess.getActiveSP(), person, matches);
+							}
 						} catch (Exception e) {
-							logger.error(String.format(
-									"Error accessing service provider : %s",
-									e.getMessage()));
+							logger.error(String.format("Error accessing service provider : %s", e.getMessage()));
 						}
 					}
 				}
@@ -102,9 +93,7 @@ public class FileProcessingController {
 			// All names have been processed, close the output
 
 		} catch (IOException e) {
-			logger.error(
-					String.format("Access Error to file %s",
-							file.getOriginalFilename()), e);
+			logger.error(String.format("Access Error to file %s", file.getOriginalFilename()), e);
 
 		}
 
@@ -113,11 +102,8 @@ public class FileProcessingController {
 				try {
 					persister.close();
 				} catch (IOException e) {
-					logger.error(
-							String.format("IO Exception trying to close persister : %s"),
-							e.getMessage());
-					logger.error(String.format("Cause : %s", e.getCause()
-							.getMessage()));
+					logger.error(String.format("IO Exception trying to close persister : %s"), e.getMessage());
+					logger.error(String.format("Cause : %s", e.getCause().getMessage()));
 				}
 		}
 
@@ -133,15 +119,13 @@ public class FileProcessingController {
 	@RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
 	public RedirectView persistConnections() {
 
-		logger.debug(String.format("Persisting connections for id : %s",
-				currentUser.getId()));
+		logger.debug(String.format("Persisting connections for id : %s", currentUser.getId()));
 
 		for (ServiceProviders sp : ServiceProviders.values()) {
 			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
 			if (spAccess.isSelected()) {
 
-				logger.debug(String.format("getting connections for %s",
-						sp.name()));
+				logger.debug(String.format("getting connections for %s", sp.name()));
 
 				ProfilePersister persister = null;
 
@@ -154,8 +138,7 @@ public class FileProcessingController {
 
 						// init the persister
 						if (connections != null) {
-							persister = persisterFactory.create(sp.name()
-									+ currentUser.getId());
+							persister = persisterFactory.create(sp.name() + currentUser.getId());
 							persister.setTypeToRecord(spAccess.getSPType(), "");
 
 							// persist all connections
@@ -164,33 +147,24 @@ public class FileProcessingController {
 							}
 
 							persister.close();
-							logger.debug(String.format(
-									"Successfully persisted %s connections",
-									connections.size()));
+							logger.debug(String.format("Successfully persisted %s connections", connections.size()));
 						} else
 							logger.debug("No connections found, nothing to persist");
 					} catch (SpInfoRetrievingException e) {
-						logger.error(String.format(
-								"Cannot get connections : %s", e.getMessage()));
-						logger.error("Root cause : "
-								+ e.getCause().getMessage());
+						logger.error(String.format("Cannot get connections : %s", e.getMessage()));
+						logger.error("Root cause : " + e.getCause().getMessage());
 					}
 
 				} catch (IOException e) {
-					logger.error(String.format(
-							"Error persisting %s connections for %s : %s",
-							sp.name(), currentUser.getId(), e.getMessage()));
+					logger.error(String.format("Error persisting %s connections for %s : %s", sp.name(), currentUser.getId(), e.getMessage()));
 					logger.error("Root cause : " + e.getCause().getMessage());
 				} finally {
 					if (persister != null)
 						try {
 							persister.close();
 						} catch (IOException e) {
-							logger.error(
-									String.format("IO Exception trying to close persister : %s"),
-									e.getMessage());
-							logger.error(String.format("Cause : %s", e
-									.getCause().getMessage()));
+							logger.error(String.format("IO Exception trying to close persister : %s"), e.getMessage());
+							logger.error(String.format("Cause : %s", e.getCause().getMessage()));
 						}
 				}
 
@@ -204,22 +178,49 @@ public class FileProcessingController {
 	private ProfilePersister initPersister(String fileName) {
 
 		// Set the PersonWithAdrress fields to be listed first
-		ProfilePersister toReturn = persisterFactory.create(fileName
-				+ "enriched");
+		ProfilePersister toReturn = persisterFactory.create(fileName + "enriched");
 		toReturn.setTypeToRecord(PersonWthAddress.class, "", pwaFields);
 
 		// Add count and information fields for all selected sps.
 		for (ServiceProviders sp : ServiceProviders.values()) {
 			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
 			if (spAccess.isSelected()) {
-				toReturn.setFieldToRecord(spAccess.getActiveSP().toString()
-						+ "_count");
-				toReturn.setTypeToRecord(spAccess.getSPType(), spAccess
-						.getActiveSP().toString() + "_");
+				toReturn.setFieldToRecord(spAccess.getActiveSP().toString() + "_count");
+				toReturn.setTypeToRecord(spAccess.getSPType(), spAccess.getActiveSP().toString() + "_");
 
 			}
 		}
 		return toReturn;
 
 	}
+
+	/**
+	 * Used for logging prospective to store several potential matches. Used a
+	 * profile persister
+	 * 
+	 * @param activeSP
+	 * @param person
+	 * @param matches
+	 */
+	@SuppressWarnings("unchecked")
+    private void persistSeveralMatches(ServiceProviders activeSP, PersonWthAddress person, List<? extends Object> matches) {
+
+		ProfilePersister persister = persisterFactory.create(person.getFirstName() + person.getLastName() + activeSP.toString());
+		persister.setTypeToRecord(spResolver.getSPConnection(activeSP).getSPType(), "");
+		for (int i = 0; i < matches.size(); i++)
+			try {
+				persister.persist(matches.get(i));
+			} catch (IOException e) {
+				logger.error(String.format("IO error persisting %s matches for %s %s: %s", activeSP.toString(), person.getFirstName(),
+				        person.getLastName(), e.getMessage()));
+			}
+		try {
+	        persister.close();
+        } catch (IOException e) {
+        	logger.error(String.format("IO error persisting %s matches for %s %s: %s", activeSP.toString(), person.getFirstName(),
+			        person.getLastName(), e.getMessage()));
+        }
+
+	}
+
 }

@@ -12,6 +12,7 @@ import org.springframework.social.linkedin.api.SearchParameters;
 import org.springframework.stereotype.Component;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.serviceproviders.config.Uris;
 
 @Component("LIConnectionRetriever")
@@ -111,5 +112,11 @@ public class LIConnectionRetrieverImpl extends
 		return toReturn;
 
 	}
+
+	@Override
+    PersonWthAddress mapProfile(LinkedInProfile profile) {
+		PersonWthAddress toReturn = new PersonWthAddress(profile.getFirstName(), profile.getLastName());
+	    return null;
+    }
 
 }
