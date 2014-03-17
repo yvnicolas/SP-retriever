@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dynamease.entities.PersonBasic;
+import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.DynProfilePrinter;
 import com.dynamease.profiles.SpInfoPerson;
 import com.dynamease.serviceproviders.CpainsConnectionRetriever.CPPersonComparator;
@@ -120,23 +121,23 @@ public class CpainsConnectionRetrieverTest {
     
     @Test
     public void testGetInfoPerson() throws SpInfoRetrievingException {
-        PersonBasic p;
+        PersonWthAddress p;
         List<SpInfoPerson> result;
         
         // Check a person with lots of homonyms, splitting on several page
-        p = new PersonBasic("Yves", "Nicolas");
+        p = new PersonWthAddress("Yves", "Nicolas");
         result = underTest.getPersonInfo(p);
         assertEquals(24, result.size());
         logger.debug(String.format("Found %s entries for Yves Nicolas", result.size()));
         
         // An entry which doesnt exist
-        p = new PersonBasic("Derrick", "Nicolau");
+        p = new PersonWthAddress("Derrick", "Nicolau");
         result = underTest.getPersonInfo(p);
         assertEquals(0, result.size());
         logger.debug(String.format("Found %s entries for Derrick Nicolau", result.size()));
         
         // A name with only one Entry
-        p = new PersonBasic("Cosma", "Nicolau");
+        p = new PersonWthAddress("Cosma", "Nicolau");
         result = underTest.getPersonInfo(p);
         assertEquals(1, result.size());
         logger.debug(String.format("Found %s entries for  Cosma Nicolau", result.size()));

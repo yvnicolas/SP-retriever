@@ -37,6 +37,9 @@ public class SPResolver {
     
     @Autowired
     private SPConnectionRetriever LINternetRetriever;
+    
+    @Autowired
+    private SPConnectionRetriever VINternetRetriever;
 
   
      public void connectUser(String id) {
@@ -66,6 +69,9 @@ public class SPResolver {
                 
             case LINKEDINPUBLIC :
             	return LINternetRetriever;
+            	
+            case VIADEOPUBLIC :
+            	return VINternetRetriever;
 
             }
         
