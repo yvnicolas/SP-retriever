@@ -94,7 +94,7 @@ public class ViadeoConnectionRetrieverImpl extends DynSPConnectionRetriever<Viad
 
 
     @Override
-    List<ViadeoProfile> getMatchesAsProfiles(PersonBasic person) {
+    List<ViadeoProfile> getMatchesAsProfiles(PersonWthAddress person) {
         List<ViadeoProfile> toReturn = viadeo.userOperations().search(person.fullName());
         logger.debug(String.format("Found %s Viadeo profiles matches for %s", toReturn.size(), person.fullName()));
         return toReturn;

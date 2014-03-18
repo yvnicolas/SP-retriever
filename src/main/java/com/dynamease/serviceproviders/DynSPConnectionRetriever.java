@@ -190,7 +190,7 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 		return toReturn;
 	}
 
-	abstract List<T> getMatchesAsProfiles(PersonBasic person);
+	abstract List<T> getMatchesAsProfiles(PersonWthAddress person);
 
 	/**
 	 * Meant to retrieve information on a person from a service provider

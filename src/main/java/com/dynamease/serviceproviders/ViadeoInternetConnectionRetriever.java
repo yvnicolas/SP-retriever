@@ -76,7 +76,7 @@ public class ViadeoInternetConnectionRetriever extends DynSPConnectionRetriever<
 	}
 
 	@Override
-	List<LinkedInternetProfile> getMatchesAsProfiles(PersonBasic person) {
+	List<LinkedInternetProfile> getMatchesAsProfiles(PersonWthAddress person) {
 
 		List<LinkedInternetProfile> toReturn = new ArrayList<>();
 

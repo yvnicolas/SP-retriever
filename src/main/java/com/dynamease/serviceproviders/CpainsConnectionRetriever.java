@@ -141,7 +141,7 @@ public class CpainsConnectionRetriever extends DynSPConnectionRetriever<CopainsD
     // TODO : Attention, ne traite pas les cas ou Noms et prenoms s'étendent sur deux sub index :
     // exemple NICOLAS Martine
     @Override
-    public List<CopainsDAvantProfile> getMatchesAsProfiles(PersonBasic person) {
+    public List<CopainsDAvantProfile> getMatchesAsProfiles(PersonWthAddress person) {
 
         List<CopainsDAvantProfile> toReturn = new ArrayList<>();
 

@@ -101,7 +101,7 @@ public class LIConnectionRetrieverImpl extends
 	}
 
 	@Override
-	List<LinkedInProfile> getMatchesAsProfiles(PersonBasic person) {
+	List<LinkedInProfile> getMatchesAsProfiles(PersonWthAddress person) {
 		List<LinkedInProfile> toReturn;
 		SearchParameters searchQuery = new SearchParameters();
 		searchQuery.setFirstName(person.getFirstName());

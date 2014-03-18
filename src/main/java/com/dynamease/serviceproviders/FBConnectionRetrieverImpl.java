@@ -115,7 +115,7 @@ public class FBConnectionRetrieverImpl extends
 	}
 
 	@Override
-	List<FacebookProfile> getMatchesAsProfiles(PersonBasic person) {
+	List<FacebookProfile> getMatchesAsProfiles(PersonWthAddress person) {
 		List<Reference> queryResponse = facebook.userOperations().search(
 				person.fullName());
 		List<FacebookProfile> toReturn = new ArrayList<>();
