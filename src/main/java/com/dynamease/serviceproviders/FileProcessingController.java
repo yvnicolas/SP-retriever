@@ -116,7 +116,8 @@ public class FileProcessingController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
+	@SuppressWarnings("unchecked")
+    @RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
 	public RedirectView persistConnections() {
 
 		logger.debug(String.format("Persisting connections for id : %s", currentUser.getId()));

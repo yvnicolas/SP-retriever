@@ -116,7 +116,7 @@ public class LIConnectionRetrieverImpl extends
 	@Override
     PersonWthAddress mapProfile(LinkedInProfile profile) {
 		PersonWthAddress toReturn = new PersonWthAddress(profile.getFirstName(), profile.getLastName());
-	    return null;
+	    return toReturn;
     }
 
 }

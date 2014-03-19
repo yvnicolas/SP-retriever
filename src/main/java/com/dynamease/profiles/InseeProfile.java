@@ -1,6 +1,8 @@
 package com.dynamease.profiles;
 
-public class InseeProfile {
+import com.dynamease.entities.PersonBasic;
+
+public class InseeProfile extends PersonBasic{
 	
 	int totalInhab;
 	int sup65to79Inhab;

@@ -2,9 +2,12 @@ package com.dynamease.serviceproviders;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,12 +15,6 @@ import org.springframework.stereotype.Component;
 import com.dynamease.entities.PersonBasic;
 import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.LinkedInternetProfile;
-
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 @Component("VINternetRetriever")
 public class ViadeoInternetConnectionRetriever extends DynSPConnectionRetriever<LinkedInternetProfile> {

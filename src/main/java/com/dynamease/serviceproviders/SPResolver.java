@@ -40,6 +40,9 @@ public class SPResolver {
     
     @Autowired
     private SPConnectionRetriever VINternetRetriever;
+    
+    @Autowired
+    private SPConnectionRetriever InseeRetriever;
 
   
      public void connectUser(String id) {
@@ -72,6 +75,12 @@ public class SPResolver {
             	
             case VIADEOPUBLIC :
             	return VINternetRetriever;
+            	
+			case INSEE:
+				return InseeRetriever;
+				
+			default:
+				break;
 
             }
         

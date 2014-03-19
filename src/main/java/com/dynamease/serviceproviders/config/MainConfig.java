@@ -15,9 +15,7 @@
  */
 package com.dynamease.serviceproviders.config;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
