@@ -3,6 +3,7 @@ package com.dynamease.serviceproviders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.facebook.api.FacebookProfile;
 import org.springframework.social.linkedin.api.LinkedInProfile;
+import org.springframework.social.viadeo.api.ViadeoProfile;
 import org.springframework.stereotype.Service;
 
 import com.dynamease.profiles.CopainsDAvantProfile;
@@ -37,9 +38,9 @@ public class SPResolver {
     @Autowired
     private SPConnectionRetriever<CopainsDAvantProfile> CPConnectionRetriever;
     
-//    @Autowired
-//    private SPConnectionRetriever<ViadeoProfile> ViadeoConnectionRetriever;
-//    
+    @Autowired
+    private SPConnectionRetriever<ViadeoProfile> ViadeoConnectionRetriever;
+    
     @Autowired
     private SPConnectionRetriever<LinkedInternetProfile> LINternetRetriever;
     
@@ -72,8 +73,8 @@ public class SPResolver {
             case COPAINSDAVANT :
                 return CPConnectionRetriever;
                 
-//            case VIADEO :
-//                return ViadeoConnectionRetriever;
+            case VIADEO :
+                return ViadeoConnectionRetriever;
                 
             case LINKEDINPUBLIC :
             	return LINternetRetriever;

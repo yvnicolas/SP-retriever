@@ -59,7 +59,6 @@ public class FileProcessingController {
 				persister.persistPartial(person, "");
 
 				for (ServiceProviders sp : ServiceProviders.values()) {
-					@SuppressWarnings("unchecked")
 					SPConnectionRetriever<? extends Object> spAccess = spResolver.getSPConnection(sp);
 					if (spAccess.isSelected()) {
 						logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
@@ -73,15 +72,23 @@ public class FileProcessingController {
 							// data considered)
 							persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_count");
 							if (matches.size() >= 1) {
-								
+
 								persistSeveralMatches(spAccess.getActiveSP(), person, matches);
-								
+
 								matches = spAccess.FilterRegionalMatches(person, matches);
-								persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
+								
+								persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_very_likely");
+								if (matches.size() >= 1) {
+									persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
+									logger.debug(String.format("Found " + "%s very likely matches", matches.size()));
+								}
+								else {
+									logger.debug(String.format("No very likely matches found for this user"));
+								}
 
 								// TODO : rajouter ici une persistence pour si
 								// plusieurs match sur noms et SP
-							
+
 							}
 						} catch (Exception e) {
 							logger.error(String.format("Error accessing service provider : %s", e.getMessage()));
@@ -120,14 +127,14 @@ public class FileProcessingController {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-    @RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
+//	@SuppressWarnings("unchecked")
+	@RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
 	public RedirectView persistConnections() {
 
 		logger.debug(String.format("Persisting connections for id : %s", currentUser.getId()));
 
 		for (ServiceProviders sp : ServiceProviders.values()) {
-			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+			SPConnectionRetriever<? extends Object> spAccess = spResolver.getSPConnection(sp);
 			if (spAccess.isSelected()) {
 
 				logger.debug(String.format("getting connections for %s", sp.name()));
@@ -191,6 +198,7 @@ public class FileProcessingController {
 			SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
 			if (spAccess.isSelected()) {
 				toReturn.setFieldToRecord(spAccess.getActiveSP().toString() + "_count");
+				toReturn.setFieldToRecord(spAccess.getActiveSP().toString() + "_very_likely");
 				toReturn.setTypeToRecord(spAccess.getSPType(), spAccess.getActiveSP().toString() + "_");
 
 			}
@@ -208,7 +216,7 @@ public class FileProcessingController {
 	 * @param matches
 	 */
 	@SuppressWarnings("unchecked")
-    private void persistSeveralMatches(ServiceProviders activeSP, PersonWthAddress person, List<? extends Object> matches) {
+	private void persistSeveralMatches(ServiceProviders activeSP, PersonWthAddress person, List<? extends Object> matches) {
 
 		ProfilePersister persister = persisterFactory.create(person.getFirstName() + person.getLastName() + activeSP.toString());
 		persister.setTypeToRecord(spResolver.getSPConnection(activeSP).getSPType(), "");
@@ -220,11 +228,11 @@ public class FileProcessingController {
 				        person.getLastName(), e.getMessage()));
 			}
 		try {
-	        persister.close();
-        } catch (IOException e) {
-        	logger.error(String.format("IO error persisting %s matches for %s %s: %s", activeSP.toString(), person.getFirstName(),
+			persister.close();
+		} catch (IOException e) {
+			logger.error(String.format("IO error persisting %s matches for %s %s: %s", activeSP.toString(), person.getFirstName(),
 			        person.getLastName(), e.getMessage()));
-        }
+		}
 
 	}
 

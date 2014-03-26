@@ -1,6 +1,5 @@
 package com.dynamease.profiles;
 
-import com.dynamease.entities.PersonBasic;
 
 public class InseeProfile {
 	
