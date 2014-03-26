@@ -59,7 +59,8 @@ public class FileProcessingController {
 				persister.persistPartial(person, "");
 
 				for (ServiceProviders sp : ServiceProviders.values()) {
-					SPConnectionRetriever spAccess = spResolver.getSPConnection(sp);
+					@SuppressWarnings("unchecked")
+					SPConnectionRetriever<? extends Object> spAccess = spResolver.getSPConnection(sp);
 					if (spAccess.isSelected()) {
 						logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
 						List<? extends Object> matches;
@@ -72,12 +73,15 @@ public class FileProcessingController {
 							// data considered)
 							persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_count");
 							if (matches.size() >= 1) {
+								
+								persistSeveralMatches(spAccess.getActiveSP(), person, matches);
+								
+								matches = spAccess.FilterRegionalMatches(person, matches);
 								persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
 
 								// TODO : rajouter ici une persistence pour si
 								// plusieurs match sur noms et SP
-								if (matches.size() > 1)
-									persistSeveralMatches(spAccess.getActiveSP(), person, matches);
+							
 							}
 						} catch (Exception e) {
 							logger.error(String.format("Error accessing service provider : %s", e.getMessage()));

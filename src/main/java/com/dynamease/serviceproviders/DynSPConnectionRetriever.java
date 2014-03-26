@@ -24,7 +24,7 @@ import com.google.common.collect.Collections2;
  * @author Yves Nicolas
  * 
  */
-public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriever {
+public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriever<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DynSPConnectionRetriever.class);
 
@@ -102,7 +102,7 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 		@Override
 		public boolean apply(T arg0) {
 
-			// TODO Auto-generated method stub
+
 			try {
 				return dynDisambiguer.matches(person, arg0);
 			} catch (SpInfoRetrievingException e) {
@@ -110,6 +110,28 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 			}
 		}
 
+	}
+	
+	class RegionalChecker implements Predicate<T> {
+		
+		private String referenceCity;
+
+		public RegionalChecker(String referenceCity) {
+			this.referenceCity = referenceCity;
+			if (referenceCity.toLowerCase().startsWith("st"))
+				this.referenceCity = "SAINT "+ referenceCity.substring(3);
+			else if	(referenceCity.toLowerCase().startsWith("ste"))
+				this.referenceCity = "SAINTE "+ referenceCity.substring(3);
+			else
+				this.referenceCity = referenceCity;
+			
+		}
+
+		@Override
+		public boolean apply(T arg0) {
+		return dynDisambiguer.regionalMatch(referenceCity,mapProfile(arg0).getCity());
+		}
+		
 	}
 
 	class ProfileComparator implements Comparator<T> {
@@ -133,6 +155,8 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 	 * @return
 	 */
 	abstract PersonWthAddress mapProfile(T profile);
+
+	
 
 	/**
 	 * Meant to retrieve information on a person from a service provider
@@ -191,6 +215,12 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 	}
 
 	abstract List<T> getMatchesAsProfiles(PersonWthAddress person);
+	
+	public List<T> FilterRegionalMatches(PersonWthAddress person, List<T> initialMatches) {
+		RegionalChecker rCheck = new RegionalChecker(person.getCity());
+		return new ArrayList<T>(Collections2.filter(initialMatches, rCheck));
+		
+	}
 
 	/**
 	 * Meant to retrieve information on a person from a service provider

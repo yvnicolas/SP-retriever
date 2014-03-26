@@ -1,8 +1,13 @@
 package com.dynamease.serviceproviders;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.social.facebook.api.FacebookProfile;
+import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.stereotype.Service;
 
+import com.dynamease.profiles.CopainsDAvantProfile;
+import com.dynamease.profiles.InseeProfile;
+import com.dynamease.profiles.LinkedInternetProfile;
 import com.dynamease.serviceproviders.user.CurrentUserContext;
 
 /**
@@ -24,25 +29,25 @@ public class SPResolver {
     private CurrentUserContext currentUser;
 
     @Autowired
-    private SPConnectionRetriever FBConnectionRetriever;
+    private SPConnectionRetriever<FacebookProfile> FBConnectionRetriever;
     
     @Autowired 
-    private SPConnectionRetriever LIConnectionRetriever;
+    private SPConnectionRetriever<LinkedInProfile> LIConnectionRetriever;
     
     @Autowired
-    private SPConnectionRetriever CPConnectionRetriever;
+    private SPConnectionRetriever<CopainsDAvantProfile> CPConnectionRetriever;
+    
+//    @Autowired
+//    private SPConnectionRetriever<ViadeoProfile> ViadeoConnectionRetriever;
+//    
+    @Autowired
+    private SPConnectionRetriever<LinkedInternetProfile> LINternetRetriever;
     
     @Autowired
-    private SPConnectionRetriever ViadeoConnectionRetriever;
+    private SPConnectionRetriever <LinkedInternetProfile> VINternetRetriever;
     
     @Autowired
-    private SPConnectionRetriever LINternetRetriever;
-    
-    @Autowired
-    private SPConnectionRetriever VINternetRetriever;
-    
-    @Autowired
-    private SPConnectionRetriever InseeRetriever;
+    private SPConnectionRetriever <InseeProfile> InseeRetriever;
 
   
      public void connectUser(String id) {
@@ -54,8 +59,8 @@ public class SPResolver {
     }
 
  
-    public SPConnectionRetriever getSPConnection(ServiceProviders sp) {
-        SPConnectionRetriever toReturn = null;
+    public SPConnectionRetriever<? extends Object> getSPConnection(ServiceProviders sp) {
+        SPConnectionRetriever<? extends Object> toReturn = null;
       
             switch (sp) {
             case FACEBOOK:
@@ -67,8 +72,8 @@ public class SPResolver {
             case COPAINSDAVANT :
                 return CPConnectionRetriever;
                 
-            case VIADEO :
-                return ViadeoConnectionRetriever;
+//            case VIADEO :
+//                return ViadeoConnectionRetriever;
                 
             case LINKEDINPUBLIC :
             	return LINternetRetriever;

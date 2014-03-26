@@ -12,11 +12,11 @@ import com.dynamease.profiles.SpInfoPerson;
  * @author Yves Nicolas
  *
  */
-public interface SPConnectionRetriever{
+public interface SPConnectionRetriever<T>{
 
     public List<PersonBasic> getConnections() throws SpInfoRetrievingException;
     
-    public List<? extends Object> getConnectionsasProfiles() throws SpInfoRetrievingException;
+    public List<T> getConnectionsasProfiles() throws SpInfoRetrievingException;
     
     public ServiceProviders getActiveSP();
     
@@ -40,11 +40,14 @@ public interface SPConnectionRetriever{
      */
     public List<SpInfoPerson> getPersonInfo(PersonWthAddress person) throws SpInfoRetrievingException;
     
-    public List<? extends Object> getMatches(PersonWthAddress person) throws SpInfoRetrievingException;
+    public List<T> getMatches(PersonWthAddress person) throws SpInfoRetrievingException;
     
-    
+    public List<T> FilterRegionalMatches (PersonWthAddress person, List<T> initialMatches);
+
     public boolean isSelected();
     
     public void select();
     public void unselect();
+
+	
 }
