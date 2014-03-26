@@ -84,45 +84,50 @@ public class InseeInfoRetrieverImpl extends DynSPConnectionRetriever<InseeProfil
 
 	@Override
 	List<InseeProfile> getMatchesAsProfiles(PersonWthAddress person) {
-		String queryString = String.format("SELECT C10_PMEN, P10_POP6579, P10_POP80P FROM cccouplfammen WHERE LIBGEO=\'%s\' AND DEP=\'%s\'", person.getCity(), person.getZip().substring(0, 2));
+		StringBuilder queryBuilder = new StringBuilder("SELECT C10_PMEN, P10_POP6579, P10_POP80P FROM cccouplfammen WHERE LIBGEO LIKE \'");
+		queryBuilder.append(person.getCity().replace(" ", "%"));
+		queryBuilder.append("\' AND DEP=\'");
+		queryBuilder.append(person.getZip().substring(0, 2));
+		queryBuilder.append("\'");
+		String queryString = queryBuilder.toString();
 		logger.debug(String.format("Executing query to insee database : %s", queryString));
-		return dbAccess.query(queryString, new InseeRowMapper(person));
+		return dbAccess.query(queryString, new InseeRowMapper());
 	}
 
 	private class InseeRowMapper implements RowMapper<InseeProfile> {
-		private PersonBasic person;
-
-		public InseeRowMapper(PersonBasic person) {
-			super();
-			this.person = person;
-		}
+		// private PersonBasic person;
+		//
+		// public InseeRowMapper(PersonBasic person) {
+		// super();
+		// this.person = person;
+		// }
 
 		@Override
 		public InseeProfile mapRow(ResultSet rs, int line) throws SQLException {
-			ResultSetExtractor<InseeProfile> extractor = new InseeResultSetExtractorImpl(person);
+			ResultSetExtractor<InseeProfile> extractor = new InseeResultSetExtractorImpl();
 			return extractor.extractData(rs);
 		}
 
 	}
 
-	private  class InseeResultSetExtractorImpl implements ResultSetExtractor<InseeProfile> {
-		private PersonBasic person;
-		
-		public InseeResultSetExtractorImpl(PersonBasic person) {
-	        super();
-	        this.person = person;
-        }
+	private class InseeResultSetExtractorImpl implements ResultSetExtractor<InseeProfile> {
+		// private PersonBasic person;
+
+		// public InseeResultSetExtractorImpl(PersonBasic person) {
+		// super();
+		// this.person = person;
+		// }
 
 		@Override
 		public InseeProfile extractData(ResultSet rs) throws SQLException, DataAccessException {
 			InseeProfile result = new InseeProfile();
-			result.setFirstName(person.getFirstName());
-			result.setLastName(person.getLastName());
+			// result.setFirstName(person.getFirstName());
+			// result.setLastName(person.getLastName());
 			result.setTotalInhab(Integer.parseInt(rs.getString(1)));
 			result.setSup65to79Inhab(Integer.parseInt(rs.getString(2)));
 			result.setSup80Inhab(Integer.parseInt(rs.getString(3)));
-			result.setSup65to79pct((int) ((100*result.getSup65to79Inhab()) / result.getTotalInhab()));
-			result.setSup80pct((int) ((100*result.getSup80Inhab()) / result.getTotalInhab()));
+			result.setSup65to79pct((int) ((100 * result.getSup65to79Inhab()) / result.getTotalInhab()));
+			result.setSup80pct((int) ((100 * result.getSup80Inhab()) / result.getTotalInhab()));
 			return result;
 		}
 	}

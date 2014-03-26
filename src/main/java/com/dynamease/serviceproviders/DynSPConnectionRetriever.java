@@ -102,11 +102,15 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 		@Override
 		public boolean apply(T arg0) {
 
-			// TODO Auto-generated method stub
+			
 			try {
 				return dynDisambiguer.matches(person, arg0);
 			} catch (SpInfoRetrievingException e) {
-				return false;
+				
+				// Disambiguer has not been able to compares the name
+				// typically if there is no first name or last name.
+				// we return true to allow keeping non name information
+				return true;
 			}
 		}
 

@@ -36,5 +36,15 @@ public class InseeInfoRetrieverImplTest {
 		assertEquals(1, results.size());
 	
 	}
+	
+	@Test
+	public void testGetMatchesUnknown() throws SpInfoRetrievingException {
+		PersonWthAddress fixture = new PersonWthAddress("Yves", "Nicolas");
+		fixture.setCity("lsdkfjsldk");
+		fixture.setZip("08554");
+		List <InseeProfile> results = underTest.getMatches(fixture);
+		assertEquals(0, results.size());
+	
+	}
 
 }
