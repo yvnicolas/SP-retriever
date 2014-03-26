@@ -205,9 +205,10 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 			
 			// Identifying the very likely ones
 			RegionalChecker rCheck = new RegionalChecker(person.getCity());
-			toReturn.setVeryLikelyMatches(new ArrayList<T>(Collections2.filter(onlyNameMatches, rCheck)));
+			List<T> likelyMatches = new ArrayList<T>(Collections2.filter(onlyNameMatches, rCheck));
+			toReturn.setVeryLikelyMatches(likelyMatches);
 			if (logger.isDebugEnabled() && (toReturn.veryLikelyMatchesCount()!=0)) 
-				prettyDebug(onlyNameMatches, "Found following very likely matches");
+				prettyDebug(likelyMatches, "Found following very likely matches");
 			}
 		
 	

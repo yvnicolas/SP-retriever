@@ -13,6 +13,12 @@
 		<appender-ref ref="console" />
 	</logger>
 	
+	   
+    <logger name="com.dynamease.addressbooks" additivity="false">
+        <level value="info" />
+        <appender-ref ref="console" />
+    </logger>
+	
 	   <logger name="com.dynamease.serviceproviders" additivity="false">
         <level value="debug" />
         <appender-ref ref="console" />

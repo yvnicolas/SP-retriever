@@ -35,9 +35,9 @@ public class LinkedInternetConnectionRetriever extends DynSPConnectionRetriever<
 		return ServiceProviders.LINKEDINPUBLIC;
 	}
 
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public Class getSPType() {
+	public Class<? extends Object> getSPType() {
 
 		return LinkedInternetProfile.class;
 	}
@@ -106,11 +106,13 @@ public class LinkedInternetConnectionRetriever extends DynSPConnectionRetriever<
 		return toReturn;
 	}
 
-	private LinkedInternetProfile getProfileFromHtml(Element oneResult, PersonBasic person) {
+	@SuppressWarnings("unused")
+    private LinkedInternetProfile getProfileFromHtml(Element oneResult, PersonBasic person) {
 
 		// Get full name and check correct match with Person full name
 		String fullName = oneResult.getElementsByTag("h2").get(0).getElementsByTag("a").get(0).attr("title");
-		if (fullName.toLowerCase().equals(person.fullName().toLowerCase())) {
+		// TODO : following test should include more precise name check if needed.
+		if (true) {
 			LinkedInternetProfile toReturn = new LinkedInternetProfile();
 			toReturn.setFirstName(person.getFirstName());
 			toReturn.setLastName(person.getLastName());
@@ -147,7 +149,8 @@ public class LinkedInternetConnectionRetriever extends DynSPConnectionRetriever<
 			}
 			return toReturn;
 
-		} else {
+		} 
+		else {
 			logger.debug(String.format("Skipping linkedIn result %s", fullName));
 			return null;
 		}

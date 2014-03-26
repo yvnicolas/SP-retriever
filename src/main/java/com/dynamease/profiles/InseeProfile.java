@@ -3,6 +3,7 @@ package com.dynamease.profiles;
 
 public class InseeProfile {
 	
+	String city;
 	int totalInhab;
 	int sup65to79Inhab;
 	int sup65to79pct;
@@ -15,6 +16,16 @@ public class InseeProfile {
 
 	public int getTotalInhab() {
 		return totalInhab;
+	}
+	
+	
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
 	}
 
 	public String getTotalPop() {

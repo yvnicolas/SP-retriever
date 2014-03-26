@@ -70,19 +70,20 @@ public class FileProcessingController {
 							// Stores count and then the first element in list
 							// (best
 							// data considered)
-							persister.persistPartialOneValue(String.format("%s", matches.nameMatchesCount()), spAccess.getActiveSP().toString() + "_count");
+							persister.persistPartialOneValue(String.format("%s", matches.nameMatchesCount()), spAccess.getActiveSP().toString()
+							        + "_count");
 							if (matches.nameMatchesCount() >= 1) {
-
-								persistSeveralMatches(spAccess.getActiveSP(), person, matches.getNameMatches());
-
-					
 								
-								persister.persistPartialOneValue(String.format("%s", matches.veryLikelyMatchesCount()), spAccess.getActiveSP().toString() + "_very_likely");
+								if (spAccess.getActiveSP() != ServiceProviders.INSEE)
+									persistSeveralMatches(spAccess.getActiveSP(), person, matches.getNameMatches());
+
+								persister.persistPartialOneValue(String.format("%s", matches.veryLikelyMatchesCount()), spAccess.getActiveSP()
+								        .toString() + "_very_likely");
 								if (matches.veryLikelyMatchesCount() >= 1) {
 									persister.persistPartial(matches.getVeryLikelyMatches().get(0), spAccess.getActiveSP().toString() + "_");
 									logger.debug(String.format("Found " + "%s very likely matches", matches.veryLikelyMatchesCount()));
-								}
-								else {
+								} else {
+									persister.persistPartial(matches.getNameMatches().get(0), spAccess.getActiveSP().toString() + "_");
 									logger.debug(String.format("No very likely matches found for this user"));
 								}
 
@@ -127,7 +128,7 @@ public class FileProcessingController {
 	 * 
 	 * @return
 	 */
-//	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	@RequestMapping(value = Uris.PERSIST, method = RequestMethod.GET)
 	public RedirectView persistConnections() {
 

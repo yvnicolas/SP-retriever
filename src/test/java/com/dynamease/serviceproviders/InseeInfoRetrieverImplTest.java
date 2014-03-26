@@ -1,8 +1,7 @@
 package com.dynamease.serviceproviders;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,7 +9,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.dynamease.entities.PersonWthAddress;
 import com.dynamease.profiles.DynProfilePrinter;
-import com.dynamease.profiles.InseeProfile;
 
 public class InseeInfoRetrieverImplTest {
 	
@@ -32,8 +30,8 @@ public class InseeInfoRetrieverImplTest {
 		PersonWthAddress fixture = new PersonWthAddress("Yves", "Nicolas");
 		fixture.setCity("Apremont");
 		fixture.setZip("08554");
-		List <InseeProfile> results = underTest.getMatches(fixture);
-		assertEquals(1, results.size());
+		SPConnectionMatchesResults results = underTest.getMatches(fixture);
+		assertEquals(1, results.nameMatchesCount());
 	
 	}
 	
@@ -42,8 +40,8 @@ public class InseeInfoRetrieverImplTest {
 		PersonWthAddress fixture = new PersonWthAddress("Yves", "Nicolas");
 		fixture.setCity("lsdkfjsldk");
 		fixture.setZip("08554");
-		List <InseeProfile> results = underTest.getMatches(fixture);
-		assertEquals(0, results.size());
+		SPConnectionMatchesResults results = underTest.getMatches(fixture);
+		assertEquals(0, results.nameMatchesCount());
 	
 	}
 

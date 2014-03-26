@@ -119,9 +119,23 @@ public class DynDisambiguer {
 	}
 
 	private boolean stringMatch(String s1, String s2) {
-		return (s1.toLowerCase().equals(s2.toLowerCase()));
+	   
+		return (normalize(s1).equals(normalize(s2)));
 	}
 
+	
+	private String normalize(String s) {
+	       // remove non standards characters (accents, etc.)
+        s = java.text.Normalizer.normalize(s.toLowerCase(), java.text.Normalizer.Form.NFKD);
+        
+       // remove unwanted characters, result of normalization
+        s = s.replaceAll("[^a-z ]", "");     
+        
+        // suppress spaces sequences
+        s = s.replaceAll("\\s", "");
+        
+        return s;
+	}
 	public boolean regionalMatch(String referenceCity, String city) {
 		if (stringMatch(referenceCity, city))
 			return true;

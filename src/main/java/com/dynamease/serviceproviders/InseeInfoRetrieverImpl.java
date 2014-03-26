@@ -42,7 +42,7 @@ public class InseeInfoRetrieverImpl extends DynSPConnectionRetriever<InseeProfil
 	}
 
 	@Override
-	public Class getSPType() {
+	public Class<? extends Object> getSPType() {
 		return InseeProfile.class;
 	}
 
@@ -78,23 +78,35 @@ public class InseeInfoRetrieverImpl extends DynSPConnectionRetriever<InseeProfil
 
 	@Override
 	PersonWthAddress mapProfile(InseeProfile profile) {
-		// TODO Auto-generated method stub
-		return null;
+		PersonWthAddress toReturn = new PersonWthAddress();
+		toReturn.setCity(profile.getCity());
+		return toReturn;
 	}
 
 	@Override
 	List<InseeProfile> getMatchesAsProfiles(PersonWthAddress person) {
+		String city = person.getCity();
+		if (city.toLowerCase().startsWith("st"))
+			city = "SAINT " + city.substring(3);
+		else if (city.toLowerCase().startsWith("ste"))
+			city = "SAINTE " + city.substring(3);
 		StringBuilder queryBuilder = new StringBuilder("SELECT C10_PMEN, P10_POP6579, P10_POP80P FROM cccouplfammen WHERE LIBGEO LIKE \'");
-		queryBuilder.append(person.getCity().replace(" ", "%"));
+		queryBuilder.append(city.replace(" ", "%"));
 		queryBuilder.append("\' AND DEP=\'");
 		queryBuilder.append(person.getZip().substring(0, 2));
 		queryBuilder.append("\'");
 		String queryString = queryBuilder.toString();
 		logger.debug(String.format("Executing query to insee database : %s", queryString));
-		return dbAccess.query(queryString, new InseeRowMapper());
+		return dbAccess.query(queryString, new InseeRowMapper(city));
 	}
 
 	private class InseeRowMapper implements RowMapper<InseeProfile> {
+		
+		private String city;
+		public InseeRowMapper(String city) {
+	        this.city=city;
+        }
+
 		// private PersonBasic person;
 		//
 		// public InseeRowMapper(PersonBasic person) {
@@ -104,13 +116,20 @@ public class InseeInfoRetrieverImpl extends DynSPConnectionRetriever<InseeProfil
 
 		@Override
 		public InseeProfile mapRow(ResultSet rs, int line) throws SQLException {
-			ResultSetExtractor<InseeProfile> extractor = new InseeResultSetExtractorImpl();
+			ResultSetExtractor<InseeProfile> extractor = new InseeResultSetExtractorImpl(city);
 			return extractor.extractData(rs);
 		}
 
 	}
 
 	private class InseeResultSetExtractorImpl implements ResultSetExtractor<InseeProfile> {
+		
+		private String city;
+		
+		public InseeResultSetExtractorImpl(String city) {
+			  this.city=city;
+        }
+
 		// private PersonBasic person;
 
 		// public InseeResultSetExtractorImpl(PersonBasic person) {
@@ -121,6 +140,7 @@ public class InseeInfoRetrieverImpl extends DynSPConnectionRetriever<InseeProfil
 		@Override
 		public InseeProfile extractData(ResultSet rs) throws SQLException, DataAccessException {
 			InseeProfile result = new InseeProfile();
+			result.setCity(city);
 			// result.setFirstName(person.getFirstName());
 			// result.setLastName(person.getLastName());
 			result.setTotalInhab(Integer.parseInt(rs.getString(1)));

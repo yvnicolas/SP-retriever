@@ -66,7 +66,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
             listReader = new CsvListReader(b, CsvPreference.STANDARD_PREFERENCE);
             csvHeader = listReader.getHeader(true);
         } catch (IOException e) {
-            logger.info("Did not manage to get the Csv Header", e);
+            logger.error("Did not manage to get the Csv Header", e);
         }
 //         finally {
 //         try {
@@ -79,7 +79,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
 
         // Header Normalization
         for (int i = 0; i < csvHeader.length; i++) {
-            logger.info(String.format("Element %d du header :  %s", i, csvHeader[i]));
+            logger.debug(String.format("Element %d du header :  %s", i, csvHeader[i]));
             csvHeader[i] = headerDico.lookup(csvHeader[i]);
         }
 
@@ -88,7 +88,7 @@ public class BasicAddrBookCsvImpl implements DynExternalAddressBookBasic {
             logger.info("Header apres normalisation");
             for (int i = 0; i < csvHeader.length; i++) {
                 if (csvHeader[i] != null) {
-                    logger.info(String.format("Element %d du header :  %s", i, csvHeader[i]));
+                    logger.debug(String.format("Element %d du header :  %s", i, csvHeader[i]));
                 }
             }
         }
