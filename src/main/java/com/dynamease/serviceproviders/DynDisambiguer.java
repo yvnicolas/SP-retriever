@@ -122,4 +122,17 @@ public class DynDisambiguer {
 		return (s1.toLowerCase().equals(s2.toLowerCase()));
 	}
 
+	public boolean regionalMatch(String referenceCity, String city) {
+		if (stringMatch(referenceCity, city))
+			return true;
+		if (city.toLowerCase().contains("grenoble"))
+			return true;
+		if (city.toLowerCase().contains("chambery"))
+			return true;
+		if (city.toLowerCase().contains("lyon"))
+			return true;
+	
+		return false;
+	}
+
 }
