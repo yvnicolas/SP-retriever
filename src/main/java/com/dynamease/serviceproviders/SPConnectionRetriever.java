@@ -20,7 +20,7 @@ public interface SPConnectionRetriever<T>{
     
     public ServiceProviders getActiveSP();
     
-      public Class<? extends Object> getSPType();
+    public Class<? extends Object> getSPType();
     
     public String getConnectUrl();
     
@@ -39,10 +39,8 @@ public interface SPConnectionRetriever<T>{
      */
     public List<SpInfoPerson> getPersonInfo(PersonWthAddress person) throws SpInfoRetrievingException;
     
-    public List<T> getMatches(PersonWthAddress person) throws SpInfoRetrievingException;
+    public SPConnectionMatchesResults getMatches(PersonWthAddress person) throws SpInfoRetrievingException;
     
-    public List<T> FilterRegionalMatches (PersonWthAddress person, List<? extends Object> initialMatches);
-
     public boolean isSelected();
     
     public void select();

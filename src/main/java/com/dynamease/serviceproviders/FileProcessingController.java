@@ -62,25 +62,25 @@ public class FileProcessingController {
 					SPConnectionRetriever<? extends Object> spAccess = spResolver.getSPConnection(sp);
 					if (spAccess.isSelected()) {
 						logger.debug(String.format("Starting %s lookup", spAccess.getActiveSP().toString()));
-						List<? extends Object> matches;
+						SPConnectionMatchesResults matches;
 						try {
 							matches = spAccess.getMatches(person);
 
-							logger.debug(String.format("Found " + "%s matches", matches.size()));
+							logger.debug(String.format("Found " + "%s matches", matches.nameMatchesCount()));
 							// Stores count and then the first element in list
 							// (best
 							// data considered)
-							persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_count");
-							if (matches.size() >= 1) {
+							persister.persistPartialOneValue(String.format("%s", matches.nameMatchesCount()), spAccess.getActiveSP().toString() + "_count");
+							if (matches.nameMatchesCount() >= 1) {
 
-								persistSeveralMatches(spAccess.getActiveSP(), person, matches);
+								persistSeveralMatches(spAccess.getActiveSP(), person, matches.getNameMatches());
 
-								matches = spAccess.FilterRegionalMatches(person, matches);
+					
 								
-								persister.persistPartialOneValue(String.format("%s", matches.size()), spAccess.getActiveSP().toString() + "_very_likely");
-								if (matches.size() >= 1) {
-									persister.persistPartial(matches.get(0), spAccess.getActiveSP().toString() + "_");
-									logger.debug(String.format("Found " + "%s very likely matches", matches.size()));
+								persister.persistPartialOneValue(String.format("%s", matches.veryLikelyMatchesCount()), spAccess.getActiveSP().toString() + "_very_likely");
+								if (matches.veryLikelyMatchesCount() >= 1) {
+									persister.persistPartial(matches.getVeryLikelyMatches().get(0), spAccess.getActiveSP().toString() + "_");
+									logger.debug(String.format("Found " + "%s very likely matches", matches.veryLikelyMatchesCount()));
 								}
 								else {
 									logger.debug(String.format("No very likely matches found for this user"));
@@ -215,7 +215,6 @@ public class FileProcessingController {
 	 * @param person
 	 * @param matches
 	 */
-	@SuppressWarnings("unchecked")
 	private void persistSeveralMatches(ServiceProviders activeSP, PersonWthAddress person, List<? extends Object> matches) {
 
 		ProfilePersister persister = persisterFactory.create(person.getFirstName() + person.getLastName() + activeSP.toString());

@@ -1,7 +1,6 @@
 package com.dynamease.serviceproviders;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -69,19 +68,24 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 
 	public abstract ServiceProviders getActiveSP();
 
-	@SuppressWarnings("rawtypes")
-	public abstract java.lang.Class getSPType();
+	@Override
+	public abstract Class<? extends Object> getSPType();
 
+	@Override
 	public abstract String getConnectUrl();
 
+	@Override
 	public abstract boolean isconnected();
 
+	@Override
 	public abstract String getPermissions();
 
+	@Override
 	public abstract List<PersonBasic> getConnections() throws SpInfoRetrievingException;
 
 	protected abstract List<T> getConnectionsasProfilesSpecific();
 
+	@Override
 	public List<T> getConnectionsasProfiles() throws SpInfoRetrievingException {
 		if (!this.isconnected()) {
 			throw new SpInfoRetrievingException(String.format("Can not get matches if not connected to service Provider %s", this.getActiveSP()
@@ -102,12 +106,10 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 		@Override
 		public boolean apply(T arg0) {
 
-			
-
 			try {
 				return dynDisambiguer.matches(person, arg0);
 			} catch (SpInfoRetrievingException e) {
-				
+
 				// Disambiguer has not been able to compares the name
 				// typically if there is no first name or last name.
 				// we return true to allow keeping non name information
@@ -116,27 +118,27 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 		}
 
 	}
-	
+
 	class RegionalChecker implements Predicate<T> {
-		
+
 		private String referenceCity;
 
 		public RegionalChecker(String referenceCity) {
 			this.referenceCity = referenceCity;
 			if (referenceCity.toLowerCase().startsWith("st"))
-				this.referenceCity = "SAINT "+ referenceCity.substring(3);
-			else if	(referenceCity.toLowerCase().startsWith("ste"))
-				this.referenceCity = "SAINTE "+ referenceCity.substring(3);
+				this.referenceCity = "SAINT " + referenceCity.substring(3);
+			else if (referenceCity.toLowerCase().startsWith("ste"))
+				this.referenceCity = "SAINTE " + referenceCity.substring(3);
 			else
 				this.referenceCity = referenceCity;
-			
+
 		}
 
 		@Override
 		public boolean apply(T arg0) {
-		return dynDisambiguer.regionalMatch(referenceCity,mapProfile(arg0).getCity());
+			return dynDisambiguer.regionalMatch(referenceCity, mapProfile(arg0).getCity());
 		}
-		
+
 	}
 
 	class ProfileComparator implements Comparator<T> {
@@ -161,8 +163,6 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 	 */
 	abstract PersonWthAddress mapProfile(T profile);
 
-	
-
 	/**
 	 * Meant to retrieve information on a person from a service provider
 	 * connection Returns info as a list if several matches are found, the
@@ -173,7 +173,8 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 	 * @return
 	 * @throws SpInfoRetrievingException
 	 */
-	public List<T> getMatches(PersonWthAddress person) throws SpInfoRetrievingException {
+	@Override
+	public SPConnectionMatchesResults getMatches(PersonWthAddress person) throws SpInfoRetrievingException {
 
 		if (!this.isconnected()) {
 			throw new SpInfoRetrievingException(String.format("Can not get matches if not connected to service Provider %s", this.getActiveSP()
@@ -182,50 +183,59 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 
 		Checker checker = new Checker(person);
 		ProfileComparator profComparator = new ProfileComparator(person);
+		SPConnectionMatchesResults toReturn = new SPConnectionMatchesResults();
 
 		List<T> queryResponse = this.getMatchesAsProfiles(person);
 		logger.debug(String.format("Found %s matches before homonym check", queryResponse.size()));
-		Collection<T> onlyNameMatches = Collections2.filter(queryResponse, checker);
+		ArrayList<T> onlyNameMatches = new ArrayList<>(Collections2.filter(queryResponse, checker));
 		logger.debug(String.format("Found %s matches pos homonym check", onlyNameMatches.size()));
-		List<T> toReturn = new ArrayList<>(onlyNameMatches);
-		if (toReturn.size() != 0) {
-			logger.debug("------------------------");
-			logger.debug("Matches before sorting :");
-			logger.debug("------------------------");
 
-			if (logger.isDebugEnabled()) {
-				int i = 1;
-				for (T profile : toReturn) {
-					logger.debug(String.format("--- Match %s ---", i));
-					logger.debug(PRINTER.prettyPrintasString(profile));
-					i++;
-				}
+		if (onlyNameMatches.size() != 0) {
+			
+			// sorting in best match order
+
+			if (logger.isDebugEnabled()) 
+				prettyDebug(onlyNameMatches, "Matches before sorting");
+			
+			Collections.sort(onlyNameMatches, profComparator);
+			toReturn.setNameMatches(onlyNameMatches);
+	
+			if (logger.isDebugEnabled()) 
+				prettyDebug(onlyNameMatches, "Matches after sorting");
+			
+			// Identifying the very likely ones
+			RegionalChecker rCheck = new RegionalChecker(person.getCity());
+			toReturn.setVeryLikelyMatches(new ArrayList<T>(Collections2.filter(onlyNameMatches, rCheck)));
+			if (logger.isDebugEnabled() && (toReturn.veryLikelyMatchesCount()!=0)) 
+				prettyDebug(onlyNameMatches, "Found following very likely matches");
 			}
-			Collections.sort(toReturn, profComparator);
+		
+	
+		
 
-			logger.debug("------------------------");
-			logger.debug("Matches after sorting :");
-			logger.debug("------------------------");
-
-			if (logger.isDebugEnabled()) {
-				int i = 1;
-				for (T profile : toReturn) {
-					logger.debug(String.format("--- Match %s ---", i));
-					logger.debug(PRINTER.prettyPrintasString(profile));
-					i++;
-				}
-			}
-		}
+		
 		return toReturn;
 	}
 
-	abstract List<T> getMatchesAsProfiles(PersonWthAddress person);
-	
-	public List<T> FilterRegionalMatches(PersonWthAddress person, List<T> initialMatches) {
-		RegionalChecker rCheck = new RegionalChecker(person.getCity());
-		return new ArrayList<T>(Collections2.filter(initialMatches, rCheck));
-		
+	private void prettyDebug(List<T> profileList, String title) {
+		logger.debug("------------------------");
+		logger.debug(title);
+		logger.debug("------------------------");
+		int i = 1;
+		for (T profile : profileList) {
+			logger.debug(String.format("--- Match %s ---", i));
+			logger.debug(PRINTER.prettyPrintasString(profile));
+			i++;
+		}
 	}
+
+	abstract List<T> getMatchesAsProfiles(PersonWthAddress person);
+//
+//	public List<T> FilterRegionalMatches(PersonWthAddress person, List<T> initialMatches) {
+//		RegionalChecker rCheck = new RegionalChecker(person.getCity());
+//		return new ArrayList<T>(Collections2.filter(initialMatches, rCheck));
+//
+//	}
 
 	/**
 	 * Meant to retrieve information on a person from a service provider
@@ -237,7 +247,8 @@ public abstract class DynSPConnectionRetriever<T> implements SPConnectionRetriev
 	 * @throws SpInfoRetrievingException
 	 */
 	public List<SpInfoPerson> getPersonInfo(PersonWthAddress person) throws SpInfoRetrievingException {
-		List<T> resultsAsProfiles = getMatches(person);
+		@SuppressWarnings("unchecked")
+        List<T> resultsAsProfiles = (List<T>) getMatches(person);
 		List<SpInfoPerson> toReturn = new ArrayList<>();
 		for (int i = 0; i < resultsAsProfiles.size(); i++) {
 			T profile = resultsAsProfiles.get(i);
